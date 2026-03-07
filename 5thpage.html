@@ -1,0 +1,724 @@
+<!-- =========================
+     5thpage.html
+========================= -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
+  <title>Choose a Game</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      width: 100%;
+      overflow: hidden;
+      overscroll-behavior: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #e5c3cc;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100dvh;
+      height: 100dvh;
+    }
+
+    button {
+      font-family: inherit;
+      border: none;
+      outline: none;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.2s ease,
+        background 0.2s ease;
+    }
+
+    button:active {
+      transform: scale(0.96);
+    }
+
+    .phone-frame {
+      width: min(360px, 94vw);
+      aspect-ratio: 9 / 18;
+      background: black;
+      border-radius: 50px;
+      padding: 12px;
+      box-shadow: 0 40px 80px rgba(0, 0, 0, 0.4);
+      position: relative;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      border-radius: 40px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top, #17173d 0%, #09061f 48%, #020112 100%);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      animation: appLaunch 0.7s ease-out;
+      isolation: isolate;
+    }
+
+    .notch {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 28px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 20;
+    }
+
+    @keyframes appLaunch {
+      0% {
+        opacity: 0;
+        transform: scale(0.92);
+        filter: blur(8px);
+      }
+      70% {
+        opacity: 1;
+        transform: scale(1.02);
+        filter: blur(0);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .fade-out {
+      animation: fadeOut 0.9s forwards;
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        transform: scale(1.04);
+      }
+    }
+
+    /* Background glow */
+    .bg-glow {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 18%, rgba(255, 111, 165, 0.18), transparent 28%),
+        radial-gradient(circle at 80% 12%, rgba(140, 120, 255, 0.15), transparent 25%),
+        radial-gradient(circle at 50% 85%, rgba(255, 180, 220, 0.08), transparent 32%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Header */
+    .header {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: calc(env(safe-area-inset-top) + 52px) 20px 10px;
+      color: white;
+    }
+
+    .header h2 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    .header p {
+      font-size: 12.5px;
+      opacity: 0.78;
+      margin-top: 6px;
+    }
+
+    /* Game list */
+    .games-wrap {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 14px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      scrollbar-width: none;
+    }
+
+    .games-wrap::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Game card */
+    .game-card {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.38);
+      transform: translateY(0);
+      animation: floatCard 6s ease-in-out infinite;
+      min-height: 132px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .game-card:nth-child(2) { animation-delay: 0.5s; }
+    .game-card:nth-child(3) { animation-delay: 1s; }
+    .game-card:nth-child(4) { animation-delay: 1.5s; }
+
+    @keyframes floatCard {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .game-card:active {
+      transform: scale(0.985);
+    }
+
+    .game-card img {
+      width: 100%;
+      height: 132px;
+      display: block;
+      object-fit: cover;
+      filter: brightness(0.72);
+    }
+
+    .game-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -120%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255, 255, 255, 0.28),
+        transparent
+      );
+      transition: 0.6s;
+      pointer-events: none;
+    }
+
+    .game-card:hover::after {
+      left: 120%;
+    }
+
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 14px;
+      background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.05) 0%,
+        rgba(0, 0, 0, 0.28) 45%,
+        rgba(0, 0, 0, 0.62) 100%
+      );
+      z-index: 1;
+    }
+
+    .card-title {
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .card-subtitle {
+      color: rgba(255, 255, 255, 0.86);
+      font-size: 12px;
+      line-height: 1.35;
+      max-width: 95%;
+    }
+
+    .card-tag {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.16);
+      color: white;
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      font-weight: 600;
+    }
+
+    /* Ripple */
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: rgba(255, 255, 255, 0.45);
+      animation: ripple 0.6s linear;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    @keyframes ripple {
+      to {
+        transform: translate(-50%, -50%) scale(4);
+        opacity: 0;
+      }
+    }
+
+    /* Bottom buttons */
+    .bottom-buttons {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      gap: 12px;
+      padding: 14px 16px calc(env(safe-area-inset-bottom) + 12px);
+    }
+
+    .btn {
+      flex: 1;
+      padding: 13px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .restart {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .shutdown {
+      background: linear-gradient(45deg, #ff6fa5, #f48fb1);
+      color: white;
+      box-shadow: 0 10px 20px rgba(255, 105, 180, 0.32);
+    }
+
+    /* POWER OFF OVERLAY */
+    .poweroff {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 40;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .poweroff.show {
+      display: flex;
+    }
+
+    .power-title {
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .power-subtitle {
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 12px;
+      margin-bottom: 14px;
+    }
+
+    .slider {
+      width: min(280px, 100%);
+      height: 58px;
+      border-radius: 40px;
+      background: rgba(255, 255, 255, 0.14);
+      display: flex;
+      align-items: center;
+      padding: 7px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+    }
+
+    .slider-track-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 13px;
+      font-weight: 600;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .knob {
+      width: 44px;
+      height: 44px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      user-select: none;
+      position: absolute;
+      left: 7px;
+      top: 7px;
+      z-index: 2;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.24);
+      touch-action: none;
+      transition: left 0.18s ease;
+      font-size: 18px;
+    }
+
+    .power-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      width: min(280px, 100%);
+    }
+
+    .smallbtn {
+      flex: 1;
+      padding: 11px 14px;
+      border: none;
+      border-radius: 18px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .cancel {
+      background: #333;
+      color: white;
+    }
+
+    .force {
+      background: #ff6fa5;
+      color: white;
+    }
+
+    .off-screen {
+      position: absolute;
+      inset: 0;
+      background: black;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      color: white;
+      z-index: 50;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .off-screen.show {
+      display: flex;
+    }
+
+    .off-screen .off-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .off-screen .off-sub {
+      font-size: 13px;
+      opacity: 0.7;
+    }
+
+    @media (max-width: 500px) {
+      html,
+      body {
+        background: black;
+      }
+
+      body {
+        width: 100vw;
+        min-height: 100dvh;
+        height: 100dvh;
+      }
+
+      .phone-frame {
+        width: 100vw;
+        height: 100dvh;
+        aspect-ratio: auto;
+        border-radius: 0;
+        padding: 0;
+        box-shadow: none;
+      }
+
+      .phone-screen {
+        border-radius: 0;
+      }
+
+      .notch {
+        display: none;
+      }
+    }
+
+    @media (max-height: 720px) {
+      .header {
+        padding-top: calc(env(safe-area-inset-top) + 40px);
+      }
+
+      .header h2 {
+        font-size: 20px;
+      }
+
+      .games-wrap {
+        gap: 12px;
+        padding-top: 10px;
+      }
+
+      .game-card,
+      .game-card img {
+        min-height: 120px;
+        height: 120px;
+      }
+
+      .card-title {
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="phone-screen" id="screen">
+      <div class="notch"></div>
+      <div class="bg-glow"></div>
+
+      <div class="header">
+        <h2>Choose a Game 🎮</h2>
+        <p>Pick one, Baby 🤭</p>
+      </div>
+
+      <div class="games-wrap">
+        <div class="game-card" data-url="game1.html">
+          <img src="images/3rdpage/1.jpg" alt="Memory Match">
+          <div class="card-tag">Game 1</div>
+          <div class="card-overlay">
+            <div class="card-title">Memory Match</div>
+            <div class="card-subtitle">Match the pairs and unlock the sweet reward.</div>
+          </div>
+        </div>
+
+        <div class="game-card" data-url="game2.html">
+          <img src="images/3rdpage/2.jpg" alt="Love Note Hunt">
+          <div class="card-tag">Game 2</div>
+          <div class="card-overlay">
+            <div class="card-title">Love Note Hunt</div>
+            <div class="card-subtitle">Find the hidden notes and discover little messages.</div>
+          </div>
+        </div>
+
+        <div class="game-card" data-url="game3.html">
+          <img src="images/3rdpage/3.jpg" alt="Catch Game">
+          <div class="card-tag">Game 3</div>
+          <div class="card-overlay">
+            <div class="card-title">Catch My Love</div>
+            <div class="card-subtitle">Catch the falling hearts and survive the challenge.</div>
+          </div>
+        </div>
+
+        <div class="game-card" data-url="game4.html">
+          <img src="images/3rdpage/4.jpg" alt="Basketball Rescue">
+          <div class="card-tag">Game 4</div>
+          <div class="card-overlay">
+            <div class="card-title">Basketball Rescue</div>
+            <div class="card-subtitle">Shoot, score, and save Eya and Kian with Kio.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-buttons">
+        <button class="btn restart" id="restartBtn" type="button">Restart</button>
+        <button class="btn shutdown" id="shutdownBtn" type="button">⏻ Shut Down</button>
+      </div>
+
+      <div class="poweroff" id="poweroff" aria-hidden="true">
+        <div class="power-title">Power Menu</div>
+        <div class="power-subtitle">Slide the button to turn off</div>
+
+        <div class="slider" id="slider">
+          <div class="slider-track-text">Slide to power off</div>
+          <div class="knob" id="knob">⏻</div>
+        </div>
+
+        <div class="power-buttons">
+          <button class="smallbtn cancel" id="cancelPowerBtn" type="button">Cancel</button>
+          <button class="smallbtn force" id="forcePowerBtn" type="button">Power Off</button>
+        </div>
+      </div>
+
+      <div class="off-screen" id="offScreen">
+        <div class="off-title">Powered Off</div>
+        <div class="off-sub">Tap Restart next time to begin again 💗</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const screen = document.getElementById("screen");
+    const cards = document.querySelectorAll(".game-card");
+    const restartBtn = document.getElementById("restartBtn");
+    const shutdownBtn = document.getElementById("shutdownBtn");
+    const power = document.getElementById("poweroff");
+    const offScreen = document.getElementById("offScreen");
+    const cancelPowerBtn = document.getElementById("cancelPowerBtn");
+    const forcePowerBtn = document.getElementById("forcePowerBtn");
+    const slider = document.getElementById("slider");
+    const knob = document.getElementById("knob");
+
+    let poweringOff = false;
+    let dragging = false;
+    let startX = 0;
+    let knobStartLeft = 7;
+
+    function createRipple(target, x, y) {
+      const circle = document.createElement("span");
+      circle.classList.add("ripple");
+
+      const rect = target.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height) * 0.6;
+      circle.style.width = `${size}px`;
+      circle.style.height = `${size}px`;
+      circle.style.left = `${x - rect.left}px`;
+      circle.style.top = `${y - rect.top}px`;
+
+      target.appendChild(circle);
+      setTimeout(() => circle.remove(), 600);
+    }
+
+    function goWithFade(url) {
+      if (poweringOff) return;
+      screen.classList.add("fade-out");
+      setTimeout(() => {
+        window.location.href = url;
+      }, 260);
+    }
+
+    cards.forEach((card) => {
+      card.addEventListener("click", (e) => {
+        const pointX = e.clientX || (e.touches && e.touches[0]?.clientX) || card.getBoundingClientRect().left + 40;
+        const pointY = e.clientY || (e.touches && e.touches[0]?.clientY) || card.getBoundingClientRect().top + 40;
+        createRipple(card, pointX, pointY);
+        const url = card.dataset.url;
+        setTimeout(() => goWithFade(url), 220);
+      });
+    });
+
+    restartBtn.addEventListener("click", () => {
+      goWithFade("1stpage.html");
+    });
+
+    function openPower() {
+      power.classList.add("show");
+      power.setAttribute("aria-hidden", "false");
+      resetKnob();
+    }
+
+    function closePower() {
+      power.classList.remove("show");
+      power.setAttribute("aria-hidden", "true");
+      resetKnob();
+    }
+
+    function powerOff() {
+      poweringOff = true;
+      power.classList.remove("show");
+      power.setAttribute("aria-hidden", "true");
+      offScreen.classList.add("show");
+    }
+
+    shutdownBtn.addEventListener("click", openPower);
+    cancelPowerBtn.addEventListener("click", closePower);
+    forcePowerBtn.addEventListener("click", powerOff);
+
+    power.addEventListener("click", (e) => {
+      if (e.target === power) closePower();
+    });
+
+    function getMaxLeft() {
+      return slider.clientWidth - knob.clientWidth - 7;
+    }
+
+    function resetKnob() {
+      knob.style.left = "7px";
+    }
+
+    function startDrag(clientX) {
+      dragging = true;
+      startX = clientX;
+      knobStartLeft = parseFloat(knob.style.left || "7");
+      knob.style.transition = "none";
+    }
+
+    function moveDrag(clientX) {
+      if (!dragging) return;
+
+      const dx = clientX - startX;
+      let nextLeft = knobStartLeft + dx;
+
+      nextLeft = Math.max(7, Math.min(getMaxLeft(), nextLeft));
+      knob.style.left = `${nextLeft}px`;
+
+      const reachedEnd = nextLeft >= getMaxLeft() - 4;
+      if (reachedEnd) {
+        dragging = false;
+        knob.style.transition = "left 0.18s ease";
+        powerOff();
+      }
+    }
+
+    function endDrag() {
+      if (!dragging) return;
+      dragging = false;
+      knob.style.transition = "left 0.18s ease";
+      resetKnob();
+    }
+
+    knob.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      startDrag(e.clientX);
+      knob.setPointerCapture(e.pointerId);
+    });
+
+    knob.addEventListener("pointermove", (e) => {
+      moveDrag(e.clientX);
+    });
+
+    knob.addEventListener("pointerup", endDrag);
+    knob.addEventListener("pointercancel", endDrag);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && power.classList.contains("show")) {
+        closePower();
+      }
+    });
+  </script>
+</body>
+</html>

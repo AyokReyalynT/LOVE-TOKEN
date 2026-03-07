@@ -1,0 +1,440 @@
+<!-- =========================
+     2ndpage.html
+========================= -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
+  <title>UNLOCK OUR LOVE</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      width: 100%;
+      margin: 0;
+      overflow: hidden;
+      overscroll-behavior: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #e9cfd6;
+    }
+
+    body {
+      min-height: 100dvh;
+      height: 100dvh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    button {
+      font-family: inherit;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.2s ease,
+        background 0.2s ease;
+      border: none;
+      outline: none;
+    }
+
+    button:active {
+      transform: scale(0.92);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) inset;
+    }
+
+    .phone-frame {
+      width: min(360px, 94vw);
+      aspect-ratio: 9 / 18;
+      background: #000;
+      border-radius: 50px;
+      padding: 12px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      background:
+        linear-gradient(180deg, rgba(255, 230, 240, 0.95), rgba(233, 207, 214, 0.92));
+      animation: appLaunch 0.7s ease-out;
+      isolation: isolate;
+    }
+
+    .notch {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 28px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 20;
+    }
+
+    @keyframes appLaunch {
+      0% {
+        opacity: 0;
+        transform: scale(0.92);
+        filter: blur(8px);
+      }
+      70% {
+        opacity: 1;
+        transform: scale(1.02);
+        filter: blur(0);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    /* VIDEO BACKGROUND */
+    video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* EXTRA SOFT OVERLAY */
+    .video-tint {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 240, 246, 0.16),
+        rgba(255, 211, 228, 0.10),
+        rgba(255, 182, 213, 0.08)
+      );
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* VIGNETTE */
+    .vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        circle at center,
+        transparent 34%,
+        rgba(0, 0, 0, 0.55)
+      );
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* CONTENT */
+    .content {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding:
+        calc(env(safe-area-inset-top) + 54px)
+        18px
+        calc(env(safe-area-inset-bottom) + 54px);
+      gap: 18px;
+    }
+
+    /* CHAT */
+    .chat {
+      width: 100%;
+      max-width: 300px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .bubble {
+      padding: 10px 14px;
+      border-radius: 18px;
+      max-width: 86%;
+      font-size: 13px;
+      line-height: 1.38;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeBubble 0.6s forwards;
+      word-wrap: break-word;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    .bubble.me {
+      align-self: flex-end;
+      background: rgba(255, 158, 207, 0.92);
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(255, 158, 207, 0.22);
+    }
+
+    .bubble.you {
+      align-self: flex-start;
+      background: rgba(255, 255, 255, 0.95);
+      color: #c05588;
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+    }
+
+    @keyframes fadeBubble {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* HEART BUTTON */
+    .heart-btn {
+      display: none;
+      width: 140px;
+      height: 130px;
+      cursor: pointer;
+      background: linear-gradient(45deg, #ff6fa5, #ff9ecf);
+      clip-path: path("M70 120 C 20 85 0 60 0 38 C 0 16 16 0 38 0 C 52 0 63 8 70 18 C 77 8 88 0 102 0 C 124 0 140 16 140 38 C 140 60 120 85 70 120 Z");
+      box-shadow: 0 18px 35px rgba(255, 105, 180, 0.35);
+      position: relative;
+      padding: 0;
+      flex-shrink: 0;
+    }
+
+    .heart-btn span {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      font-size: 15px;
+      transform: translateY(6px);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+      user-select: none;
+    }
+
+    .show {
+      display: block;
+      animation: pop 0.6s ease;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0); }
+      80% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    /* FLOATING HEART INTRO */
+    .intro-heart {
+      position: absolute;
+      font-size: 20px;
+      opacity: 0;
+      animation: floatUp 3s linear forwards;
+      z-index: 4;
+      pointer-events: none;
+      filter: drop-shadow(0 4px 10px rgba(255, 255, 255, 0.3));
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(100px) scale(0.9);
+        opacity: 0;
+      }
+      30% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-140px) scale(1.08);
+        opacity: 0;
+      }
+    }
+
+    /* FADE OUT */
+    .fade-out {
+      animation: fadeOut 1s forwards;
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        transform: scale(1.05);
+      }
+    }
+
+    @media (max-width: 500px) {
+      html,
+      body {
+        background: #000;
+      }
+
+      body {
+        width: 100vw;
+        min-height: 100dvh;
+        height: 100dvh;
+      }
+
+      .phone-frame {
+        width: 100vw;
+        height: 100dvh;
+        aspect-ratio: auto;
+        border-radius: 0;
+        padding: 0;
+        box-shadow: none;
+      }
+
+      .phone-screen {
+        border-radius: 0;
+      }
+
+      .notch {
+        display: none;
+      }
+    }
+
+    @media (max-height: 650px) {
+      .content {
+        padding:
+          calc(env(safe-area-inset-top) + 46px)
+          16px
+          calc(env(safe-area-inset-bottom) + 46px);
+        gap: 14px;
+      }
+
+      .heart-btn {
+        width: 130px;
+        height: 120px;
+      }
+
+      .heart-btn span {
+        font-size: 14px;
+      }
+
+      .bubble {
+        font-size: 12.5px;
+      }
+
+      .chat {
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="phone-frame">
+    <div class="phone-screen" id="screen">
+      <div class="notch"></div>
+
+      <video id="bgVideo" autoplay muted loop playsinline preload="auto">
+        <source src="clips/bg.mp4" type="video/mp4" />
+      </video>
+
+      <div class="video-tint"></div>
+      <div class="vignette"></div>
+
+      <div class="content">
+        <div class="chat" id="chat"></div>
+
+        <button class="heart-btn" id="nextBtn" type="button" aria-label="Next">
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="bgMusic" loop preload="auto">
+    <source src="musics/2ndpage.mp3" type="audio/mpeg" />
+  </audio>
+
+  <script>
+    const screen = document.getElementById("screen");
+    const chat = document.getElementById("chat");
+    const nextBtn = document.getElementById("nextBtn");
+    const music = document.getElementById("bgMusic");
+    const bgVideo = document.getElementById("bgVideo");
+
+    const messages = [
+      { type: "you", text: "Hi, Baby." },
+      { type: "me", text: "Hmm?" },
+      { type: "you", text: "Ready ka na bang balikan ang lahat?😂" },
+      { type: "me", text: "Just tap my heart.😚" }
+    ];
+
+    let index = 0;
+    let musicStarted = false;
+    let pageLeaving = false;
+
+    function tryPlayMusic() {
+      if (musicStarted) return;
+      music.play()
+        .then(() => {
+          musicStarted = true;
+        })
+        .catch(() => {});
+    }
+
+    function createHeart() {
+      const heart = document.createElement("div");
+      heart.className = "intro-heart";
+      heart.textContent = "💖";
+      heart.style.left = Math.random() * 100 + "%";
+      heart.style.top = "72%";
+      screen.appendChild(heart);
+
+      setTimeout(() => heart.remove(), 3000);
+    }
+
+    for (let i = 0; i < 8; i++) {
+      setTimeout(createHeart, i * 200);
+    }
+
+    function showBubble() {
+      if (index >= messages.length) {
+        nextBtn.classList.add("show");
+        return;
+      }
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble " + messages[index].type;
+      bubble.textContent = messages[index].text;
+      chat.appendChild(bubble);
+
+      index++;
+      setTimeout(showBubble, 1200);
+    }
+
+    setTimeout(showBubble, 1800);
+
+    ["click", "touchstart", "pointerdown"].forEach((eventName) => {
+      document.addEventListener(eventName, tryPlayMusic, { once: true });
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (pageLeaving) return;
+      pageLeaving = true;
+
+      screen.classList.add("fade-out");
+      setTimeout(() => {
+        window.location.href = "3rdpage.html";
+      }, 900);
+    });
+
+    bgVideo.addEventListener("error", () => {
+      console.warn("Background video failed to load.");
+    });
+  </script>
+</body>
+</html>

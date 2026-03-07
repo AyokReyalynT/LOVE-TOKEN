@@ -1,0 +1,450 @@
+<!-- =========================
+     hiddenpage.html
+========================= -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
+  <title>Hidden Envelope 💌</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      width: 100%;
+      margin: 0;
+      overflow: hidden;
+      overscroll-behavior: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #e9cfd6;
+    }
+
+    body {
+      min-height: 100dvh;
+      height: 100dvh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    button {
+      font-family: inherit;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.2s ease,
+        background 0.2s ease;
+      border: none;
+      outline: none;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    .phone-frame {
+      width: min(360px, 94vw);
+      aspect-ratio: 9 / 18;
+      background: #000;
+      border-radius: 50px;
+      padding: 12px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      animation: appLaunch 0.7s ease-out;
+      background: linear-gradient(180deg, #fff7fb, #ffeaf4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 24px;
+      isolation: isolate;
+    }
+
+    .notch {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150px;
+      height: 28px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 20;
+    }
+
+    @keyframes appLaunch {
+      0% {
+        opacity: 0;
+        transform: scale(0.92);
+        filter: blur(8px);
+      }
+      70% {
+        opacity: 1;
+        transform: scale(1.02);
+        filter: blur(0);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .fade-out {
+      animation: fadeOut 0.85s forwards;
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        transform: scale(1.04);
+      }
+    }
+
+    .bg-glow {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 25% 20%, rgba(255, 182, 212, 0.32), transparent 28%),
+        radial-gradient(circle at 78% 18%, rgba(255, 215, 230, 0.25), transparent 24%),
+        radial-gradient(circle at 50% 82%, rgba(244, 143, 177, 0.14), transparent 30%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .secret-wrap {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 280px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .title {
+      color: #cc5c8f;
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0 0 8px;
+    }
+
+    .subtitle {
+      color: #b34779;
+      opacity: 0.82;
+      font-size: 12.5px;
+      line-height: 1.45;
+      margin: 0 0 22px;
+    }
+
+    .envelope {
+      width: 210px;
+      height: 150px;
+      background: linear-gradient(180deg, #ffffff, #fff3f8);
+      border-radius: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 38px;
+      cursor: pointer;
+      box-shadow:
+        0 14px 30px rgba(0, 0, 0, 0.12),
+        0 0 0 1px rgba(255,255,255,0.65) inset;
+      position: relative;
+      animation: floatEnvelope 4s ease-in-out infinite;
+      user-select: none;
+    }
+
+    .envelope::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 18px;
+      background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.8),
+        rgba(255,255,255,0.15)
+      );
+      pointer-events: none;
+    }
+
+    .envelope:active {
+      transform: scale(0.98);
+    }
+
+    @keyframes floatEnvelope {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .hint {
+      margin-top: 14px;
+      font-size: 12px;
+      color: #c35f90;
+      opacity: 0.9;
+    }
+
+    #passwordArea {
+      width: 100%;
+      display: none;
+      margin-top: 18px;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
+      animation: revealArea 0.28s ease;
+    }
+
+    @keyframes revealArea {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .password-input {
+      width: min(240px, 84%);
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(204, 92, 143, 0.25);
+      text-align: center;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.92);
+      outline: none;
+      color: #b34779;
+      box-shadow: 0 8px 18px rgba(204, 92, 143, 0.08);
+    }
+
+    .password-input:focus {
+      border-color: #ff6fa5;
+      box-shadow: 0 0 0 3px rgba(255, 111, 165, 0.16);
+    }
+
+    .btn {
+      width: min(240px, 84%);
+      padding: 12px 15px;
+      border-radius: 16px;
+      background: linear-gradient(45deg, #ff6fa5, #f48fb1);
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: 0 12px 24px rgba(255, 105, 180, 0.24);
+    }
+
+    .error {
+      min-height: 18px;
+      font-size: 12.5px;
+      color: #e15c78;
+      text-align: center;
+      margin-top: 2px;
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: white;
+      border-radius: 50%;
+      opacity: 0;
+      animation: sparkleAnim 3s linear infinite;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    @keyframes sparkleAnim {
+      0% { opacity: 0; transform: scale(0.7); }
+      50% { opacity: 1; transform: scale(1.1); }
+      100% { opacity: 0; transform: scale(0.8); }
+    }
+
+    @media (max-width: 500px) {
+      html,
+      body {
+        background: black;
+      }
+
+      body {
+        width: 100vw;
+        min-height: 100dvh;
+        height: 100dvh;
+      }
+
+      .phone-frame {
+        width: 100vw;
+        height: 100dvh;
+        aspect-ratio: auto;
+        border-radius: 0;
+        padding: 0;
+        box-shadow: none;
+      }
+
+      .phone-screen {
+        border-radius: 0;
+      }
+
+      .notch {
+        display: none;
+      }
+    }
+
+    @media (max-height: 700px) {
+      .title {
+        font-size: 20px;
+      }
+
+      .subtitle {
+        margin-bottom: 18px;
+      }
+
+      .envelope {
+        width: 190px;
+        height: 136px;
+        font-size: 34px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="phone-frame">
+    <div class="phone-screen" id="screen">
+      <div class="notch"></div>
+      <div class="bg-glow"></div>
+
+      <div class="secret-wrap">
+        <h1 class="title">Hidden Envelope 💌</h1>
+        <p class="subtitle">A tiny secret waiting for the right key.</p>
+
+        <div class="envelope" id="secretEnvelope" role="button" tabindex="0" aria-label="Open hidden envelope">💌</div>
+        <div class="hint">Tap the envelope to reveal the password box.</div>
+
+        <div id="passwordArea">
+          <input
+            type="password"
+            id="passInput"
+            class="password-input"
+            placeholder="Enter password"
+            autocomplete="off"
+          />
+          <button class="btn" id="unlockBtn" type="button">Unlock</button>
+          <div class="error" id="errorMsg"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PASSWORD = "ILOVEKIOSOMUCHHH!";
+
+    const screen = document.getElementById("screen");
+    const passwordArea = document.getElementById("passwordArea");
+    const passInput = document.getElementById("passInput");
+    const unlockBtn = document.getElementById("unlockBtn");
+    const errorMsg = document.getElementById("errorMsg");
+    const secretEnvelope = document.getElementById("secretEnvelope");
+
+    let sparkleTimer = null;
+    let revealed = false;
+
+    function askPassword() {
+      if (revealed) {
+        passInput.focus();
+        return;
+      }
+
+      revealed = true;
+      passwordArea.style.display = "flex";
+      errorMsg.textContent = "";
+
+      setTimeout(() => {
+        passInput.focus();
+      }, 120);
+    }
+
+    function checkPass() {
+      const userValue = passInput.value.trim();
+
+      if (userValue === PASSWORD) {
+        errorMsg.textContent = "";
+        screen.classList.add("fade-out");
+        setTimeout(() => {
+          window.location.href = "finalhidden.html";
+        }, 800);
+      } else {
+        errorMsg.textContent = "Wrong password 💔";
+        passInput.value = "";
+        setTimeout(() => {
+          passInput.focus();
+        }, 80);
+      }
+    }
+
+    function createSparkle() {
+      const s = document.createElement("div");
+      s.className = "sparkle";
+      s.style.top = Math.random() * 100 + "%";
+      s.style.left = Math.random() * 100 + "%";
+      screen.appendChild(s);
+
+      setTimeout(() => s.remove(), 3000);
+    }
+
+    function startSparkles() {
+      if (sparkleTimer) return;
+      sparkleTimer = setInterval(createSparkle, 850);
+    }
+
+    function stopSparkles() {
+      if (!sparkleTimer) return;
+      clearInterval(sparkleTimer);
+      sparkleTimer = null;
+    }
+
+    secretEnvelope.addEventListener("click", askPassword);
+    secretEnvelope.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        askPassword();
+      }
+    });
+
+    unlockBtn.addEventListener("click", checkPass);
+
+    passInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        checkPass();
+      }
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        stopSparkles();
+      } else {
+        startSparkles();
+      }
+    });
+
+    startSparkles();
+  </script>
+</body>
+</html>

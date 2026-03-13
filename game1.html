@@ -1,1970 +1,3439 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>game1.html — Kio: Find the Missing Persons</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Game 1 — Kio Story Mission</title>
 
-  <style>
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+<style>
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :root {
+    --pink-main: #d86c9c;
+    --pink-deep: #bf5b88;
+    --pink-soft: #f39bbb;
+    --pink-light: #ffe8f1;
+    --pink-border: rgba(232, 132, 178, 0.45);
+    --pink-glow: rgba(232, 120, 172, 0.28);
+    --pink-glow-strong: rgba(232, 120, 172, 0.5);
+    --text-main: #8c4d6a;
+    --text-soft: #b06f8e;
+    --white-glass: rgba(255, 255, 255, 0.74);
+    --white-glass-2: rgba(255, 255, 255, 0.88);
+    --shadow-soft: 0 14px 34px rgba(201, 108, 150, 0.16);
+    --shadow-card: 0 10px 24px rgba(201, 108, 150, 0.14);
+    --shadow-strong: 0 24px 70px rgba(0, 0, 0, 0.28);
+    --frame-radius: 42px;
+    --screen-radius: 30px;
+    --ease: 0.24s ease;
+    --landscape-width: min(844px, calc((100dvh - 24px) * 844 / 390), 95vw);
+  }
+
+  html,
+  body {
+    margin: 0;
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:
+      radial-gradient(circle at 14% 18%, rgba(255, 215, 230, 0.85), transparent 22%),
+      radial-gradient(circle at 84% 78%, rgba(255, 224, 235, 0.7), transparent 24%),
+      linear-gradient(180deg, #f6dde7, #edd1dc 58%, #e4c5d0);
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    overscroll-behavior: none;
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  button,
+  input {
+    font-family: inherit;
+    outline: none;
+  }
+
+  button {
+    border: none;
+    cursor: pointer;
+    transition:
+      transform 0.18s ease,
+      box-shadow var(--ease),
+      background var(--ease),
+      color var(--ease),
+      opacity var(--ease),
+      border-color var(--ease),
+      filter var(--ease);
+  }
+
+  button:active {
+    transform: scale(0.97);
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+    -webkit-user-drag: none;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .phone-frame {
+    width: var(--landscape-width);
+    aspect-ratio: 844 / 390;
+    background: #000;
+    border-radius: var(--frame-radius);
+    padding: 12px;
+    box-shadow: var(--shadow-strong);
+    position: relative;
+    isolation: isolate;
+  }
+
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    border-radius: var(--screen-radius);
+    overflow: hidden;
+    position: relative;
+    border: 2px solid rgba(10, 10, 14, 0.78);
+    background:
+      radial-gradient(circle at 18% 18%, rgba(255,255,255,0.56), transparent 18%),
+      radial-gradient(circle at 84% 12%, rgba(255,255,255,0.35), transparent 16%),
+      linear-gradient(180deg, #fff6fa 0%, #ffeef5 48%, #fce8f0 100%);
+  }
+
+  .phone-screen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(circle at 8% 90%, rgba(255, 214, 229, 0.34), transparent 22%),
+      radial-gradient(circle at 92% 82%, rgba(255, 217, 232, 0.24), transparent 18%);
+  }
+
+  .view {
+    position: absolute;
+    inset: 0;
+    display: none;
+    z-index: 2;
+  }
+
+  .view.active {
+    display: block;
+  }
+
+  .topbar {
+    position: absolute;
+    top: calc(env(safe-area-inset-top) + 12px);
+    left: 14px;
+    right: 14px;
+    z-index: 24;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .top-left,
+  .top-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .topbar button {
+    min-height: 32px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.86);
+    color: var(--pink-main);
+    font-size: 11px;
+    font-weight: 900;
+    border: 1px solid rgba(240, 163, 197, 0.5);
+    box-shadow: 0 8px 18px rgba(216, 108, 156, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    white-space: nowrap;
+  }
+
+  .topbar button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 22px rgba(216, 108, 156, 0.18);
+  }
+
+  .title-wrap {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(72%, 560px);
+    z-index: 18;
+    text-align: center;
+  }
+
+  #selectView .title-wrap,
+  #storeView .title-wrap {
+    top: calc(env(safe-area-inset-top) + 34px);
+  }
+
+  .page-title,
+  .game-title h1 {
+    margin: 0;
+    color: var(--pink-main);
+    font-weight: 900;
+    letter-spacing: 0.2px;
+    text-shadow: 0 2px 10px rgba(255,255,255,0.46);
+  }
+
+  #selectView .page-title,
+  #storeView .page-title {
+    font-size: clamp(16px, 1.7vw, 21px);
+  }
+
+  .page-subtitle,
+  .game-title p {
+    margin: 2px 0 0;
+    color: var(--text-soft);
+    font-size: 10px;
+    line-height: 1.25;
+    opacity: 0.92;
+  }
+
+  .glass-panel,
+  .missions-panel,
+  .info-panel,
+  .start-panel,
+  .store-card,
+  .store-grid,
+  .modal,
+  .hud-panel {
+    background: var(--white-glass);
+    border: 1.4px solid rgba(255,255,255,0.6);
+    border-radius: 22px;
+    box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(13px);
+    -webkit-backdrop-filter: blur(13px);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .missions-panel::before,
+  .info-panel::before,
+  .start-panel::before,
+  .store-card::before,
+  .store-grid::before,
+  .modal::before,
+  .hud-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at top left, rgba(255,255,255,0.78), transparent 34%),
+      linear-gradient(180deg, rgba(255,255,255,0.16), rgba(244,143,177,0.04));
+  }
+
+  /* PAGE 1 */
+
+  .select-layout {
+    position: absolute;
+    inset: 82px 14px 14px 14px;
+    display: grid;
+    grid-template-columns: 1.56fr 1.06fr;
+    grid-template-rows: auto 1fr;
+    gap: 11px;
+  }
+
+  .missions-panel {
+    grid-column: 1 / -1;
+    padding: 13px 14px 11px;
+    min-height: 112px;
+  }
+
+  .missions-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+    align-items: center;
+  }
+
+  .mission-card {
+    min-width: 0;
+    border-radius: 18px;
+    padding: 7px 6px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    background: transparent;
+    border: 1.5px solid transparent;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mission-card::after {
+    content: "";
+    position: absolute;
+    inset: -20% -40%;
+    background: linear-gradient(
+      120deg,
+      transparent 20%,
+      rgba(255,255,255,0.08) 42%,
+      rgba(255,255,255,0.42) 50%,
+      rgba(255,255,255,0.08) 58%,
+      transparent 80%
+    );
+    transform: translateX(-120%) rotate(8deg);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .mission-card.selected {
+    background: rgba(255,255,255,0.22);
+    border-color: rgba(220, 124, 170, 0.58);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.22) inset,
+      0 10px 22px rgba(216,108,156,0.12);
+  }
+
+  .mission-card.selected:not(.locked) {
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.22) inset,
+      0 0 18px rgba(236, 134, 181, 0.18),
+      0 0 34px rgba(236, 134, 181, 0.18),
+      0 12px 24px rgba(216,108,156,0.14);
+  }
+
+  .mission-card.selected:not(.locked)::after {
+    opacity: 1;
+    animation: shineSweep 2.1s linear infinite;
+  }
+
+  .mission-card.locked {
+    opacity: 0.58;
+    filter: grayscale(0.95);
+  }
+
+  .mission-thumb {
+    width: 72px;
+    height: 72px;
+    border-radius: 18px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #ffffff, #fff1f7);
+    border: 1.4px solid rgba(184,95,135,0.14);
+    box-shadow: 0 8px 18px rgba(204,92,143,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .mission-card.selected:not(.locked) .mission-thumb {
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.28) inset,
+      0 0 18px rgba(244, 143, 177, 0.24),
+      0 0 32px rgba(244, 143, 177, 0.18),
+      0 10px 22px rgba(204,92,143,0.12);
+  }
+
+  .mission-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .locked-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255,255,255,0.96);
+    color: var(--pink-main);
+    font-size: 8px;
+    font-weight: 900;
+    border-radius: 999px;
+    padding: 4px 8px;
+    box-shadow: 0 6px 14px rgba(204,92,143,0.1);
+    text-transform: uppercase;
+    letter-spacing: 0.25px;
+  }
+
+  .mission-name {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    line-height: 1.1;
+    min-height: 22px;
+  }
+
+  .info-panel {
+    padding: 13px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
+
+  .info-avatar {
+    width: 66px;
+    height: 66px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex: 0 0 auto;
+    background: #fff;
+    border: 1.4px solid rgba(244,166,200,0.38);
+    box-shadow: 0 10px 20px rgba(204,92,143,0.1);
+    position: relative;
+    z-index: 1;
+  }
+
+  .info-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .info-copy {
+    min-width: 0;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+  }
+
+  .info-copy h3 {
+    margin: 0 0 6px;
+    color: var(--pink-main);
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-align: center;
+    letter-spacing: 0.18px;
+  }
+
+  .info-copy p {
+    margin: 0;
+    color: var(--text-main);
+    font-size: 11px;
+    line-height: 1.34;
+    text-align: center;
+  }
+
+  .start-panel {
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .start-btn {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    min-height: 62px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #f7a8c7, #ee86b3);
+    color: #fff;
+    font-weight: 900;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    font-size: 15px;
+    border: 1px solid rgba(255,255,255,0.42);
+    box-shadow:
+      0 10px 22px rgba(216,108,156,0.14),
+      0 0 18px rgba(244, 143, 177, 0.12);
+    padding: 12px 18px;
+  }
+
+  .start-btn:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 16px 28px rgba(216,108,156,0.18),
+      0 0 22px rgba(244, 143, 177, 0.18);
+  }
+
+  /* PAGE 2 */
+
+  .store-layout {
+    position: absolute;
+    inset: 82px 14px 14px 14px;
+    display: grid;
+    grid-template-columns: 1.18fr 0.98fr;
+    gap: 11px;
+    min-height: 0;
+  }
+
+  .store-grid {
+    padding: 10px 10px 9px;
+    display: grid;
+    grid-template-columns: 58px repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    align-content: start;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(216,108,156,0.48) rgba(255,255,255,0.18);
+  }
+
+  .store-grid::-webkit-scrollbar,
+  .store-side::-webkit-scrollbar {
+    width: 7px;
+  }
+
+  .store-grid::-webkit-scrollbar-track,
+  .store-side::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.18);
+    border-radius: 999px;
+  }
+
+  .store-grid::-webkit-scrollbar-thumb,
+  .store-side::-webkit-scrollbar-thumb {
+    background: rgba(216,108,156,0.48);
+    border-radius: 999px;
+  }
+
+  .row-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--pink-main);
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 1.12;
+    min-height: 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .store-slot {
+    min-height: 66px;
+    border-radius: 17px;
+    border: 1.4px solid rgba(244,166,200,0.44);
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,243,248,0.95));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 8px;
+    box-shadow: 0 8px 18px rgba(204,92,143,0.08);
+    overflow: hidden;
+  }
+
+  .store-slot::after {
+    content: "";
+    position: absolute;
+    inset: -20% -40%;
+    background: linear-gradient(
+      120deg,
+      transparent 18%,
+      rgba(255,255,255,0.08) 40%,
+      rgba(255,255,255,0.5) 50%,
+      rgba(255,255,255,0.08) 60%,
+      transparent 82%
+    );
+    transform: translateX(-130%) rotate(8deg);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .store-slot.selected {
+    border-color: rgba(220, 124, 170, 0.8);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.28) inset,
+      0 0 16px rgba(244, 143, 177, 0.2),
+      0 0 30px rgba(244, 143, 177, 0.18),
+      0 12px 20px rgba(0,0,0,0.08);
+    transform: translateY(-1px);
+  }
+
+  .store-slot.selected::after {
+    opacity: 1;
+    animation: shineSweep 2s linear infinite;
+  }
+
+  .store-slot.locked {
+    opacity: 0.52;
+    filter: grayscale(1);
+  }
+
+  .store-slot img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+  }
+
+  .slot-price {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(216,108,156,0.94);
+    color: #fff;
+    border-radius: 999px;
+    padding: 2px 6px;
+    font-size: 8px;
+    font-weight: 900;
+    box-shadow: 0 5px 12px rgba(216,108,156,0.16);
+  }
+
+  .store-side {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 2px;
+  }
+
+  .store-card {
+    padding: 9px 11px;
+    min-height: 0;
+    flex: 0 0 auto;
+  }
+
+  .store-card h3 {
+    position: relative;
+    z-index: 1;
+    margin: 0 0 5px;
+    color: var(--pink-main);
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1.15;
+  }
+
+  .store-card p {
+    position: relative;
+    z-index: 1;
+    margin: 0 0 3px;
+    color: var(--text-main);
+    font-size: 10px;
+    line-height: 1.22;
+    word-break: break-word;
+  }
+
+  .status-yes {
+    color: #176f38;
+    font-weight: 900;
+  }
+
+  .status-no {
+    color: #c34371;
+    font-weight: 900;
+  }
+
+  .quantity-card {
+    padding: 10px 11px;
+  }
+
+  .qty-wrap {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .qty-wrap button {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.9);
+    color: var(--pink-main);
+    font-size: 18px;
+    font-weight: 900;
+    border: 1px solid rgba(244,166,200,0.45);
+    box-shadow: 0 8px 16px rgba(204,92,143,0.08);
+  }
+
+  .qty-wrap span {
+    min-width: 28px;
+    text-align: center;
+    color: var(--pink-main);
+    font-size: 16px;
+    font-weight: 900;
+  }
+
+  .store-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+    margin-top: -1px;
+    padding-top: 2px;
+  }
+
+  .buy-btn,
+  .equip-btn {
+    min-height: 44px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.2px;
+    text-transform: uppercase;
+    box-shadow: 0 10px 20px rgba(216,108,156,0.12);
+  }
+
+  .buy-btn {
+    background: linear-gradient(180deg, #f7a5c5, #ee87b4);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.4);
+  }
+
+  .equip-btn {
+    background: rgba(255,255,255,0.9);
+    color: var(--pink-main);
+    border: 1px solid rgba(244,166,200,0.5);
+  }
+
+  /* PAGE 3 */
+
+  #gameView .topbar {
+    top: calc(env(safe-area-inset-top) + 10px);
+    left: 12px;
+    right: 12px;
+  }
+
+  .game-title {
+    top: calc(env(safe-area-inset-top) + 30px);
+    width: min(60%, 440px);
+  }
+
+  .game-title h1 {
+    font-size: clamp(13px, 1.2vw, 17px);
+  }
+
+  .game-title p {
+    font-size: 9px;
+  }
+
+  .hud-panel {
+    position: absolute;
+    top: calc(env(safe-area-inset-top) + 62px);
+    left: 12px;
+    right: 12px;
+    z-index: 18;
+    padding: 6px 8px;
+  }
+
+  .hud-rows {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 5px;
+  }
+
+  .hud-row {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .hud-tag {
+    min-height: 22px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.86);
+    border: 1px solid rgba(244,166,200,0.38);
+    color: var(--pink-main);
+    font-size: 8.6px;
+    font-weight: 900;
+    line-height: 1;
+    box-shadow: 0 6px 14px rgba(216,108,156,0.08);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .hud-tag strong {
+    color: var(--text-main);
+    font-weight: 900;
+  }
+
+  .arena-wrap {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: calc(env(safe-area-inset-top) + 132px);
+    bottom: 12px;
+    z-index: 5;
+  }
+
+  .arena {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 250px;
+    border-radius: 24px;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 50% 26%, rgba(244,143,177,0.1), transparent 28%),
+      linear-gradient(180deg, rgba(255,255,255,0.54), rgba(255,246,250,0.9) 46%, rgba(255,238,246,0.96));
+    border: 1.4px solid rgba(255,255,255,0.64);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .arena::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background-image:
+      linear-gradient(rgba(184,95,135,0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(184,95,135,0.055) 1px, transparent 1px);
+    background-size: 34px 34px;
+    opacity: 0.35;
+  }
+
+  .arena-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .arena-bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.94;
+  }
+
+  .safe-zone {
+    position: absolute;
+    right: 14px;
+    top: 12px;
+    width: 138px;
+    height: 50px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.54), rgba(244,143,177,0.18));
+    border: 1px dashed rgba(216,108,156,0.62);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: var(--pink-main);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.2px;
+    box-shadow: 0 0 26px rgba(244,143,177,0.18);
+    z-index: 7;
+    pointer-events: none;
+  }
+
+  .safe-zone.show {
+    display: flex;
+  }
+
+  .player {
+    position: absolute;
+    width: 82px;
+    height: 96px;
+    transform: translate(-50%, -50%);
+    z-index: 13;
+    pointer-events: auto;
+    filter: drop-shadow(0 8px 18px rgba(204,92,143,0.18));
+    touch-action: none;
+  }
+
+  .player img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .entity {
+    position: absolute;
+    width: 66px;
+    height: 74px;
+    transform: translate(-50%, -50%);
+    z-index: 8;
+    pointer-events: none;
+    transition: left 0.05s linear, top 0.05s linear;
+  }
+
+  .entity img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .entity .label {
+    position: absolute;
+    left: 50%;
+    bottom: -14px;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.9);
+    color: var(--pink-main);
+    border: 1px solid rgba(244,166,200,0.45);
+    border-radius: 999px;
+    padding: 3px 7px;
+    font-size: 8px;
+    font-weight: 900;
+    line-height: 1;
+    white-space: nowrap;
+    box-shadow: 0 6px 14px rgba(204,92,143,0.08);
+  }
+
+  .entity.enemy .label {
+    display: none;
+  }
+
+  .entity.special .label,
+  .entity.civilian .label {
+    display: inline-flex;
+  }
+
+  .entity.civilian {
+    width: 60px;
+    height: 68px;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .entity.civilian.dragging {
+    filter: drop-shadow(0 0 10px rgba(60,145,255,0.55));
+  }
+
+  .entity.civilian.saving {
+    filter: drop-shadow(0 0 8px rgba(73,182,117,0.45));
+  }
+
+  .entity.special::after {
+    content: "VEST";
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff7d5;
+    color: #7a5a00;
+    border: 1px solid #d8b44c;
+    border-radius: 999px;
+    padding: 3px 7px;
+    font-size: 8px;
+    font-weight: 900;
+    box-shadow: 0 6px 14px rgba(122,90,0,0.1);
+    letter-spacing: 0.2px;
+  }
+
+  .entity.dead {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.55);
+    transition: 0.18s ease;
+  }
+
+  .crosshair {
+    position: absolute;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    border: 2px solid rgba(184,95,135,0.52);
+    transform: translate(-50%, -50%);
+    z-index: 12;
+    pointer-events: none;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.04);
+  }
+
+  .crosshair::before,
+  .crosshair::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(184,95,135,0.64);
+  }
+
+  .crosshair::before {
+    width: 2px;
+    height: 100%;
+  }
+
+  .crosshair::after {
+    width: 100%;
+    height: 2px;
+  }
+
+  .aim-line {
+    position: absolute;
+    height: 3px;
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(184,95,135,0.72) 0 12px,
+      rgba(184,95,135,0) 12px 20px
+    );
+    transform-origin: 0 50%;
+    pointer-events: none;
+    z-index: 11;
+    opacity: 0.9;
+    border-radius: 999px;
+  }
+
+  .bullet,
+  .enemy-bullet,
+  .hook-line,
+  .blast {
+    position: absolute;
+    pointer-events: none;
+    z-index: 14;
+  }
+
+  .bullet {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #ffd36d, #ff9e1b);
+    box-shadow: 0 0 12px rgba(255,184,58,0.85);
+    transform: translate(-50%, -50%);
+  }
+
+  .enemy-bullet {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #ff9db0, #e94367);
+    box-shadow: 0 0 10px rgba(233,75,110,0.8);
+    transform: translate(-50%, -50%);
+  }
+
+  .hook-line {
+    height: 4px;
+    background: linear-gradient(90deg, #88d1ff, #3c91ff);
+    transform-origin: 0 50%;
+    border-radius: 999px;
+    box-shadow: 0 0 8px rgba(60,145,255,0.55);
+    z-index: 15;
+  }
+
+  .blast {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,214,92,0.95), rgba(255,120,64,0.65), rgba(255,120,64,0));
+    transform: translate(-50%, -50%) scale(0);
+    animation: blastAnim 0.32s ease forwards;
+  }
+
+  .notice {
+    position: absolute;
+    left: 50%;
+    top: 16px;
+    transform: translateX(-50%);
+    padding: 10px 15px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.96);
+    border: 1.5px solid rgba(244,166,200,0.55);
+    font-weight: 900;
+    text-transform: uppercase;
+    z-index: 25;
+    display: none;
+    text-align: center;
+    max-width: 72%;
+    min-width: 160px;
+    box-shadow: 0 12px 20px rgba(204,92,143,0.1);
+    color: var(--pink-main);
+    font-size: 10px;
+    letter-spacing: 0.2px;
+    line-height: 1.2;
+  }
+
+  .notice.show {
+    display: block;
+    animation: noticePop 0.95s ease;
+  }
+
+  .muzzle {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(255, 182, 57, 0.95);
+    box-shadow: 0 0 18px rgba(255, 193, 78, 0.9);
+    pointer-events: none;
+    z-index: 16;
+    opacity: 0;
+  }
+
+  .floating-msg,
+  .points-pop {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    font-weight: 900;
+    text-transform: uppercase;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.75);
+    pointer-events: none;
+    z-index: 18;
+    animation: floatUp 0.7s ease forwards;
+  }
+
+  .points-pop {
+    color: #187235;
+  }
+
+  .floating-msg {
+    color: #c43f71;
+  }
+
+  .blood-splash,
+  .blood-particle {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 17;
+    opacity: 1;
+  }
+
+  .blood-splash {
+    width: 40px;
+    height: 40px;
+    animation: bloodFade 0.85s ease forwards;
+  }
+
+  .blood-splash img,
+  .blood-particle img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .blood-particle {
+    width: 11px;
+    height: 11px;
+    animation: particleFade 0.7s ease forwards;
+  }
+
+  /* WHEEL */
+
+  .radial-wheel {
+    position: absolute;
+    width: 146px;
+    height: 146px;
+    z-index: 21;
+    pointer-events: auto;
+    display: none;
+    touch-action: none;
+  }
+
+  .radial-wheel.show {
+    display: block;
+  }
+
+  .radial-wheel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at center, rgba(255,255,255,0.16), rgba(255,255,255,0.03)),
+      linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0.02));
+    border: 1.5px solid rgba(255,255,255,0.56);
+    box-shadow:
+      0 12px 30px rgba(0,0,0,0.16),
+      inset 0 0 0 1px rgba(255,255,255,0.22);
+    backdrop-filter: blur(11px);
+    -webkit-backdrop-filter: blur(11px);
+  }
+
+  .wheel-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.94);
+    border: 1.5px solid rgba(244,166,200,0.48);
+    box-shadow:
+      0 8px 20px rgba(216,108,156,0.14),
+      0 0 18px rgba(244, 143, 177, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+  }
+
+  .wheel-center img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+  }
+
+  .wheel-slot {
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.94);
+    border: 1.4px solid rgba(244,166,200,0.38);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 16px rgba(216,108,156,0.12);
+    transform: translate(-50%, -50%);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease, filter 0.18s ease;
+  }
+
+  .wheel-slot img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+  }
+
+  .wheel-slot.active {
+    transform: translate(-50%, -50%) scale(1.14);
+    box-shadow:
+      0 0 0 3px rgba(216,108,156,0.14),
+      0 10px 18px rgba(216,108,156,0.18);
+  }
+
+  .wheel-slot.disabled {
+    background: rgba(35, 35, 35, 0.92);
+    border-color: rgba(0,0,0,0.42);
+    filter: grayscale(1) brightness(0.3);
+    opacity: 0.68;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.24);
+  }
+
+  .wheel-slot.disabled.active {
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+
+  .wheel-count {
+    position: absolute;
+    right: -3px;
+    bottom: -3px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.94);
+    color: var(--pink-main);
+    border: 1px solid rgba(244,166,200,0.36);
+    font-size: 8px;
+    font-weight: 900;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    box-shadow: 0 4px 10px rgba(216,108,156,0.1);
+  }
+
+  .wheel-slot.disabled .wheel-count {
+    background: rgba(255,255,255,0.78);
+    color: #333;
+    border-color: rgba(0,0,0,0.14);
+  }
+
+  .wheel-label {
+    position: absolute;
+    left: 50%;
+    bottom: -20px;
+    transform: translateX(-50%);
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.94);
+    border: 1px solid rgba(244,166,200,0.42);
+    color: var(--pink-main);
+    font-size: 8.4px;
+    font-weight: 900;
+    white-space: nowrap;
+    box-shadow: 0 6px 12px rgba(216,108,156,0.1);
+    max-width: 132px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 4;
+  }
+
+  /* OVERLAY */
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(32, 12, 22, 0.48);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 18px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .overlay.active {
+    display: flex;
+  }
+
+  .modal {
+    width: min(420px, 92%);
+    max-height: 86%;
+    overflow: auto;
+    padding: 18px;
+    text-align: center;
+  }
+
+  .modal h2 {
+    position: relative;
+    z-index: 1;
+    margin: 0 0 8px;
+    color: var(--pink-main);
+    font-size: 22px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .modal p {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    color: var(--text-main);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .modal-actions {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+
+  .modal-actions button {
+    min-height: 44px;
+    padding: 10px 18px;
+    border-radius: 16px;
+    font-weight: 900;
+    letter-spacing: 0.2px;
+    box-shadow: 0 10px 20px rgba(216,108,156,0.12);
+  }
+
+  #overlayPrimary {
+    background: linear-gradient(180deg, #f7a5c5, #ee87b4);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.4);
+  }
+
+  #overlaySecondary {
+    background: rgba(255,255,255,0.9);
+    color: var(--pink-main);
+    border: 1px solid rgba(244,166,200,0.5);
+  }
+
+  /* ANIMATIONS */
+
+  @keyframes shineSweep {
+    0% { transform: translateX(-125%) rotate(8deg); }
+    100% { transform: translateX(125%) rotate(8deg); }
+  }
+
+  @keyframes blastAnim {
+    to {
+      transform: translate(-50%, -50%) scale(7);
+      opacity: 0;
+    }
+  }
+
+  @keyframes noticePop {
+    0% { opacity: 0; transform: translate(-50%, -8px) scale(0.94); }
+    20% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-50%, -18px) scale(1.03); }
+  }
+
+  @keyframes floatUp {
+    0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -90%) scale(0.9); }
+  }
+
+  @keyframes bloodFade {
+    0% { opacity: 1; transform: translate(-50%, -50%) scale(0.82); }
+    15% { transform: translate(-50%, -50%) scale(1.05); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.08); }
+  }
+
+  @keyframes particleFade {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* RESPONSIVE */
+
+  @media (max-width: 760px) {
     body {
-      min-height: 100dvh;
-      height: 100dvh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #000;
-      color: #fff;
     }
 
     .phone-frame {
-      width: min(1100px, 96vw);
-      aspect-ratio: 16 / 9;
-      background: #000;
-      border-radius: 42px;
-      padding: 12px;
-      box-shadow: 0 40px 80px rgba(0,0,0,0.35);
-      position: relative;
+      width: 100vw;
+      height: 100dvh;
+      aspect-ratio: auto;
+      border-radius: 0;
+      padding: 0;
+      box-shadow: none;
     }
 
     .phone-screen {
-      width: 100%;
-      height: 100%;
-      border-radius: 32px;
-      overflow: hidden;
-      position: relative;
-      padding-top: env(safe-area-inset-top);
-      padding-bottom: env(safe-area-inset-bottom);
-      animation: appLaunch .7s ease-out;
-      background:
-        radial-gradient(120% 120% at 50% 15%, rgba(255,255,255,0.10), transparent 55%),
-        radial-gradient(120% 120% at 50% 70%, rgba(255,110,165,0.12), transparent 55%),
-        linear-gradient(180deg,#070616,#050414 45%,#030217);
-      display: flex;
-      flex-direction: column;
-      isolation: isolate;
+      border-radius: 0;
+      border: none;
     }
 
-    .phone-screen::before {
-      content: "";
-      position: absolute;
-      inset: -30%;
-      background: radial-gradient(circle, rgba(255,182,217,0.16) 0%, transparent 65%);
-      opacity: .22;
-      animation: aura 10s ease-in-out infinite;
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    .notch {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 180px;
-      height: 34px;
-      background: #000;
-      border-radius: 20px;
-      z-index: 30;
-    }
-
-    .rotate-warning {
-      position: fixed;
-      inset: 0;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      background: linear-gradient(180deg,#070616,#030217);
-      z-index: 999;
-      text-align: center;
-      color: #fff;
-      padding: 20px;
-    }
-
-    .rotate-box {
-      padding: 30px 24px;
-      border-radius: 24px;
-      background: rgba(255,255,255,0.08);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.12);
-      width: min(360px, 92vw);
-      box-shadow: 0 20px 50px rgba(0,0,0,0.35);
-    }
-
-    .rotate-box h2 { margin: 0 0 8px; font-size: 24px; }
-    .rotate-box p { margin: 0; color: rgba(255,255,255,0.75); line-height: 1.5; }
-    .phone-icon { font-size: 54px; margin-bottom: 14px; }
-
-    @keyframes appLaunch {
-      0% { opacity: 0; transform: scale(.92); filter: blur(8px); }
-      70% { opacity: 1; transform: scale(1.02); filter: blur(0); }
-      100% { transform: scale(1); }
-    }
-    @keyframes aura {
-      0% { transform: scale(1); opacity: .16; }
-      50% { transform: scale(1.14); opacity: .28; }
-      100% { transform: scale(1); opacity: .16; }
-    }
-    .fade-out { animation: fadeOut .85s forwards; }
-    @keyframes fadeOut { to { opacity: 0; transform: scale(1.04); } }
-
-    .glass {
-      background: rgba(255,255,255,0.10);
-      border: 1px solid rgba(255,255,255,0.14);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-radius: 18px;
-      color: rgba(255,255,255,0.94);
-      box-shadow: 0 18px 60px rgba(0,0,0,0.25);
-    }
-
-    .hud {
-      position: relative;
-      z-index: 8;
-      width: calc(100% - 20px);
-      margin: calc(env(safe-area-inset-top) + 12px) auto 0;
-      display: grid;
-      grid-template-columns: 1.5fr 1fr 1fr;
-      gap: 8px;
-    }
-
-    .hud-card { padding: 10px; }
-
-    .mini-label {
-      font-size: 10px;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.66);
-      margin-bottom: 4px;
-    }
-
-    .mission-title { font-size: 14px; font-weight: 800; line-height: 1.2; }
-    .mission-sub { font-size: 11px; color: rgba(255,255,255,0.78); margin-top: 4px; line-height: 1.35; }
-    .hud-row { display: flex; justify-content: space-between; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-
-    .chip {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.09);
-      border-radius: 999px;
-      padding: 5px 9px;
-      font-size: 11px;
-      color: #fff;
-      white-space: nowrap;
-    }
-
-    .chip.good { border-color: rgba(125,255,188,0.4); color: #7dffbc; }
-    .chip.bad { border-color: rgba(255,108,143,0.35); color: #ff9eb3; }
-    .chip.warn { border-color: rgba(255,209,102,0.35); color: #ffd166; }
-    .chip.pink { border-color: rgba(255,183,215,0.35); color: #ffb7d7; }
-
-    .radio-wrap {
-      position: relative;
-      z-index: 8;
-      width: calc(100% - 20px);
-      margin: 8px auto 0;
-    }
-
-    .radio-box {
-      padding: 10px 12px;
-      opacity: 0;
-      transform: translateY(-6px);
-      transition: opacity .25s ease, transform .25s ease;
-    }
-
-    .radio-box.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .radio-label {
-      font-size: 10px;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.66);
-      margin-bottom: 4px;
-    }
-
-    .radio-text {
-      font-size: 12px;
-      line-height: 1.4;
-      color: #fff;
-    }
-
-    .game-wrap {
-      position: relative;
-      z-index: 5;
-      flex: 1;
-      min-height: 0;
-      width: calc(100% - 20px);
-      margin: 8px auto 0;
-      border-radius: 22px;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.14);
-      box-shadow: 0 18px 60px rgba(0,0,0,0.35);
-      background:
-        radial-gradient(circle at 30% 25%, rgba(255,255,255,0.08), rgba(0,0,0,0) 55%),
-        radial-gradient(circle at 70% 60%, rgba(255,110,165,0.10), rgba(0,0,0,0) 55%),
-        rgba(0,0,0,0.12);
-      touch-action: none;
-    }
-
-    canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    .top-status {
-      position: absolute;
-      top: 10px;
+    .topbar {
       left: 10px;
       right: 10px;
-      z-index: 9;
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      pointer-events: none;
     }
 
-    .status-pill {
-      padding: 8px 10px;
-      border-radius: 14px;
-      font-size: 11px;
+    .title-wrap {
+      width: min(82%, 560px);
     }
 
-    .controls {
-      width: 100%;
-      padding: 12px 16px calc(env(safe-area-inset-bottom) + 12px);
-      display: flex;
-      gap: 10px;
-      z-index: 8;
-      position: relative;
+    .select-layout,
+    .store-layout {
+      inset: 78px 8px 8px 8px;
+      grid-template-columns: 1fr;
     }
 
-    .btn {
-      flex: 1;
-      padding: 12px 12px;
-      border-radius: 18px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 13px;
-      color: #fff;
-      border: none;
-      outline: none;
-      font-family: inherit;
-      transition: transform .15s ease, box-shadow .15s ease, opacity .2s ease;
-      touch-action: manipulation;
+    .store-layout {
+      grid-template-rows: minmax(180px, 1fr) minmax(180px, auto);
     }
 
-    .btn:active { transform: scale(.94); box-shadow: 0 4px 12px rgba(0,0,0,0.25) inset; }
-    .btn.secondary {
-      background: rgba(255,255,255,0.14);
-      border: 1px solid rgba(255,255,255,0.18);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-    }
-    .btn.primary {
-      background: linear-gradient(45deg,#ff6fa5,#f48fb1);
-      box-shadow: 0 14px 30px rgba(255,105,180,0.22);
-    }
-    .btn.fire {
-      background: linear-gradient(45deg,#7ec8ff,#b0ecff);
-      color: #07141c;
-      font-weight: 900;
+    .store-grid {
+      grid-template-columns: 54px repeat(4, minmax(0, 1fr));
+      gap: 7px;
     }
 
-    .overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 20;
-      display: grid;
-      place-items: center;
-      background: linear-gradient(180deg, rgba(2,6,10,0.35), rgba(2,6,10,0.74));
-      padding: 18px;
+    .missions-grid {
+      gap: 6px;
     }
 
-    .hidden { display: none !important; }
-
-    .panel {
-      width: min(940px, 100%);
-      max-height: 90dvh;
-      overflow: auto;
-      background: rgba(9,18,31,0.92);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 28px;
-      box-shadow: 0 22px 60px rgba(0,0,0,0.35);
-      padding: 24px;
-      color: #fff;
+    .mission-thumb {
+      width: 58px;
+      height: 58px;
     }
 
-    .hero-title {
-      font-size: clamp(28px, 5vw, 48px);
-      line-height: 1;
-      margin: 0;
-      font-weight: 900;
-      letter-spacing: -0.03em;
+    .mission-name {
+      font-size: 9px;
+      min-height: 20px;
     }
 
-    .sub {
-      color: rgba(255,255,255,0.72);
-      font-size: clamp(14px, 1.7vw, 18px);
-      line-height: 1.6;
+    .start-btn {
+      min-height: 56px;
+      font-size: 14px;
     }
 
-    .story-grid {
-      display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 18px;
-      margin-top: 18px;
+    .game-title {
+      width: min(72%, 440px);
+      top: calc(env(safe-area-inset-top) + 28px);
     }
 
-    .story-box, .char-box {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.10);
-      border-radius: 22px;
-      padding: 18px;
+    .game-title h1 {
+      font-size: 12px;
     }
 
-    .char-list {
-      display: grid;
-      grid-template-columns: repeat(3,1fr);
-      gap: 12px;
-      margin-top: 12px;
+    .game-title p {
+      font-size: 8.5px;
     }
 
-    .char-card {
-      text-align: center;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 18px;
-      padding: 12px;
+    .hud-panel {
+      top: calc(env(safe-area-inset-top) + 58px);
+      left: 8px;
+      right: 8px;
+      padding: 5px 6px;
     }
 
-    .char-card img {
-      width: 100%;
-      max-width: 100px;
-      aspect-ratio: 1/1;
-      object-fit: contain;
-      display: block;
-      margin: 0 auto 8px;
-      filter: drop-shadow(0 8px 20px rgba(0,0,0,0.28));
+    .hud-tag {
+      font-size: 8px;
+      padding: 4px 7px;
     }
 
-    .char-name { font-weight: 800; }
-    .char-role { font-size: 12px; color: rgba(255,255,255,0.66); }
-
-    .level-list {
-      display: grid;
-      grid-template-columns: repeat(3,1fr);
-      gap: 12px;
-      margin-top: 12px;
+    .arena-wrap {
+      left: 8px;
+      right: 8px;
+      top: calc(env(safe-area-inset-top) + 128px);
+      bottom: 8px;
     }
 
-    .level-item {
-      padding: 14px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.09);
+    .player {
+      width: 72px;
+      height: 86px;
     }
 
-    .level-item h4 { margin: 0 0 8px; font-size: 15px; }
-    .level-item p { margin: 0; color: rgba(255,255,255,0.68); font-size: 13px; line-height: 1.5; }
-
-    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
-
-    .cta {
-      border: none;
-      cursor: pointer;
-      border-radius: 18px;
-      padding: 14px 18px;
-      font-size: 15px;
-      font-weight: 900;
-      color: #06121b;
-      background: linear-gradient(135deg,#7ec8ff,#b0ecff);
+    .entity {
+      width: 58px;
+      height: 66px;
     }
 
-    .cta.secondary {
-      color: #fff;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
+    .entity.civilian {
+      width: 54px;
+      height: 62px;
     }
 
-    .level-intro {
-      position: absolute;
-      inset: 0;
-      z-index: 18;
-      display: none;
-      place-items: center;
-      background: linear-gradient(180deg, rgba(3,8,13,0.40), rgba(3,8,13,0.76));
-      padding: 18px;
+    .radial-wheel {
+      width: 126px;
+      height: 126px;
     }
 
-    .level-intro.show { display: grid; }
-
-    .intro-card {
-      width: min(720px, 100%);
-      background: rgba(9,18,31,0.92);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 28px;
-      box-shadow: 0 22px 60px rgba(0,0,0,0.35);
-      padding: 22px;
-      color: #fff;
+    .wheel-center {
+      width: 50px;
+      height: 50px;
     }
 
-    .intro-level {
-      font-size: 11px;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.66);
-      margin-bottom: 6px;
+    .wheel-slot {
+      width: 32px;
+      height: 32px;
     }
 
-    .intro-title {
-      font-size: clamp(24px, 4.8vw, 40px);
-      font-weight: 900;
-      margin: 0 0 8px;
+    .wheel-slot img {
+      width: 18px;
+      height: 18px;
     }
 
-    .intro-sub {
-      color: rgba(255,255,255,0.72);
-      font-size: 15px;
-      line-height: 1.6;
-      margin: 0;
+    .wheel-label {
+      max-width: 116px;
+      font-size: 8px;
     }
 
-    .reunion-scene {
-      display: flex;
-      justify-content: center;
-      align-items: flex-end;
-      gap: 18px;
-      margin-top: 18px;
-      flex-wrap: wrap;
+    .safe-zone {
+      width: 116px;
+      height: 42px;
+      font-size: 9px;
     }
-
-    .reunion-card {
-      width: 130px;
-      text-align: center;
-      padding: 14px;
-      border-radius: 22px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .reunion-card::before {
-      content: "";
-      position: absolute;
-      inset: -30%;
-      background: radial-gradient(circle, rgba(255,182,217,0.18) 0%, transparent 65%);
-      opacity: .7;
-      pointer-events: none;
-    }
-
-    .reunion-card img {
-      width: 100%;
-      aspect-ratio: 1/1;
-      object-fit: contain;
-      display: block;
-      position: relative;
-      z-index: 1;
-      filter: drop-shadow(0 10px 24px rgba(0,0,0,0.28));
-    }
-
-    .reunion-name { font-weight: 800; position: relative; z-index: 1; }
-    .reunion-role { font-size: 12px; color: rgba(255,255,255,0.68); position: relative; z-index: 1; }
-
-    @media (max-width: 500px) {
-      body { background: #000; }
-      .phone-frame {
-        width: 100vw;
-        height: 100dvh;
-        aspect-ratio: auto;
-        border-radius: 0;
-        padding: 0;
-        box-shadow: none;
-      }
-      .phone-screen { border-radius: 0; }
-      .notch { display: none; }
-    }
-
-    @media (max-width: 900px) {
-      .hud { grid-template-columns: 1fr; }
-      .story-grid, .char-list, .level-list { grid-template-columns: 1fr; }
-    }
-
-    @media (max-height: 540px) {
-      .hud-card { padding: 8px 9px; }
-      .mission-title { font-size: 13px; }
-      .mission-sub { font-size: 10px; }
-      .radio-text { font-size: 11px; }
-      .controls { padding: 8px 12px calc(env(safe-area-inset-bottom) + 8px); }
-      .btn { padding: 10px 10px; min-height: 44px; }
-    }
-
-    @media (orientation: portrait) and (max-width: 900px) {
-      .phone-frame { display: none; }
-      .rotate-warning { display: flex; }
-    }
-  </style>
+  }
+</style>
 </head>
+
 <body>
-  <div class="rotate-warning" id="rotateWarning">
-    <div class="rotate-box">
-      <div class="phone-icon">📱</div>
-      <h2>Please Rotate Your Device</h2>
-      <p>This mission is designed for landscape mode.</p>
+<div class="phone-frame">
+<div class="phone-screen" id="screen">
+
+<!-- PAGE 1 : LOBBY -->
+<section class="view active" id="selectView">
+  <div class="topbar">
+    <div class="top-left">
+      <button id="goHubBtn">← Games</button>
+    </div>
+    <div class="top-right">
+      <button id="openStoreBtn">Store</button>
     </div>
   </div>
 
-  <div class="phone-frame">
-    <div class="phone-screen" id="screen">
-      <div class="notch"></div>
+  <div class="title-wrap">
+    <h1 class="page-title">Kio Story Mission</h1>
+    <p class="page-subtitle">Unlock a mission, gear up, and save the day. 💗</p>
+  </div>
 
-      <div class="hud">
-        <div class="glass hud-card">
-          <div class="mini-label">Mission</div>
-          <div class="mission-title" id="missionTitle">Level 1 — Abandoned Street</div>
-          <div class="mission-sub" id="missionDesc">Save Eya, avoid civilians, collect clues, and clear the street.</div>
-          <div class="chips" id="objectiveChips"></div>
-        </div>
+  <div class="select-layout">
+    <div class="missions-panel">
+      <div class="missions-grid" id="missionGrid"></div>
+    </div>
 
-        <div class="glass hud-card">
-          <div class="mini-label">Officer Status</div>
-          <div class="hud-row">
-            <span class="chip good" id="healthChip">Health 100</span>
-            <span class="chip warn" id="ammoChip">Ammo 8</span>
-          </div>
-          <div class="chips">
-            <span class="chip" id="scoreChip">Score 0</span>
-            <span class="chip bad" id="civChip">Civilians Hurt 0</span>
-          </div>
-        </div>
-
-        <div class="glass hud-card">
-          <div class="mini-label">Progress</div>
-          <div class="hud-row">
-            <span class="chip pink" id="clueChip">Clues 0 / 2</span>
-            <span class="chip" id="timerText">02:30</span>
-          </div>
-          <div class="chips">
-            <span class="chip" id="enemyChip">Enemies 0</span>
-            <span class="chip good" id="rescueChip">Rescue: —</span>
-          </div>
-        </div>
+    <div class="info-panel">
+      <div class="info-avatar">
+        <img id="infoAvatar" alt="Mission Avatar">
       </div>
-
-      <div class="radio-wrap">
-        <div class="glass radio-box" id="radioBox">
-          <div class="radio-label" id="radioLabel">Mission Radio</div>
-          <div class="radio-text" id="radioText">Kio, stay focused. Bring them home.</div>
-        </div>
+      <div class="info-copy">
+        <h3>Level Explanation</h3>
+        <p id="levelDescription"></p>
       </div>
+    </div>
 
-      <div class="game-wrap" id="gameWrap">
-        <canvas id="gameCanvas"></canvas>
-        <div class="top-status">
-          <div class="glass status-pill" id="allyPill">Allies 0 / 2</div>
-          <div class="glass status-pill" id="aimPill">Aim ready</div>
-        </div>
-      </div>
+    <div class="start-panel">
+      <button id="startLevelBtn" class="start-btn">START MISSION</button>
+    </div>
+  </div>
+</section>
 
-      <div class="controls">
-        <button class="btn secondary" id="leftBtn" type="button">◀</button>
-        <button class="btn secondary" id="reloadBtn" type="button">↻</button>
-        <button class="btn fire" id="fireBtn" type="button">FIRE</button>
-        <button class="btn secondary" id="rightBtn" type="button">▶</button>
-        <button class="btn primary" id="pauseBtn" type="button">II</button>
-        <button class="btn secondary" id="backBtn" type="button">Back</button>
-      </div>
-
-      <div class="overlay" id="startOverlay">
-        <div class="panel">
-          <p class="mini-label">Premium Story Mission</p>
-          <h1 class="hero-title">KIO: FIND THE MISSING PERSONS</h1>
-          <p class="sub">
-            Officer <strong>Kio</strong> enters three dangerous zones to rescue <strong>Eya</strong> and <strong>Kian</strong>.
-            Aim carefully, protect civilians, gain allies by helping people in danger, and finish the final family mission.
-          </p>
-
-          <div class="story-grid">
-            <div class="story-box">
-              <h3 style="margin-top:0">Mission Flow</h3>
-              <div class="level-list">
-                <div class="level-item">
-                  <h4>Level 1 — Abandoned Street</h4>
-                  <p>Find clues, save a civilian, gain an ally, and rescue Eya.</p>
-                </div>
-                <div class="level-item">
-                  <h4>Level 2 — Warehouse Hideout</h4>
-                  <p>Harder pressure, another ally chance, and the rescue of Kian.</p>
-                </div>
-                <div class="level-item">
-                  <h4>Level 3 — Final Rescue Room</h4>
-                  <p>Defeat the final boss and complete the dramatic family reunion.</p>
-                </div>
-              </div>
-              <div class="actions">
-                <button class="cta" id="startBtn" type="button">Start Mission</button>
-                <button class="cta secondary" id="howBtn" type="button">How to Play</button>
-              </div>
-            </div>
-
-            <div class="char-box">
-              <h3 style="margin-top:0">Mission Characters</h3>
-              <div class="char-list">
-                <div class="char-card">
-                  <img src="images/games/kio.png" alt="Kio">
-                  <div class="char-name">KIO</div>
-                  <div class="char-role">Police Officer</div>
-                </div>
-                <div class="char-card">
-                  <img src="images/games/eya.png" alt="Eya">
-                  <div class="char-name">EYA</div>
-                  <div class="char-role">Missing Person</div>
-                </div>
-                <div class="char-card">
-                  <img src="images/games/kian.png" alt="Kian">
-                  <div class="char-name">KIAN</div>
-                  <div class="char-role">Missing Person</div>
-                </div>
-              </div>
-              <p class="mission-sub" style="margin-top:12px">
-                This is the only landscape mission among the four games, made to feel more cinematic and special.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="overlay hidden" id="howOverlay">
-        <div class="panel">
-          <h2 style="margin-top:0">How to Play</h2>
-          <p class="sub">
-            Move Kio left or right, aim using the screen or mouse, and shoot only when your crosshair is lined up.
-            Help endangered civilians to unlock allies. Allies will help Kio shoot criminals automatically.
-          </p>
-          <div class="chips">
-            <span class="chip">Aim first</span>
-            <span class="chip good">Collect clues</span>
-            <span class="chip good">Save civilians</span>
-            <span class="chip pink">Gain allies</span>
-            <span class="chip bad">Avoid harming civilians</span>
-          </div>
-          <div class="actions">
-            <button class="cta secondary" id="closeHowBtn" type="button">Back</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="level-intro hidden" id="levelIntro">
-        <div class="intro-card">
-          <div class="intro-level" id="introLevel">Level 1</div>
-          <h2 class="intro-title" id="introTitle">Abandoned Street</h2>
-          <p class="intro-sub" id="introSub">The first rescue starts now.</p>
-          <div class="actions">
-            <button class="cta" id="introStartBtn" type="button">Enter Mission</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="overlay hidden" id="messageOverlay">
-        <div class="panel">
-          <h2 id="messageTitle" style="margin-top:0">Mission Complete</h2>
-          <p class="sub" id="messageText">You cleared the stage.</p>
-
-          <div class="level-list" style="margin-top:16px">
-            <div class="level-item">
-              <h4>Score</h4>
-              <p id="statScore">0</p>
-            </div>
-            <div class="level-item">
-              <h4>Accuracy</h4>
-              <p id="statAcc">0%</p>
-            </div>
-            <div class="level-item">
-              <h4>Clues / Civilians Hurt</h4>
-              <p><span id="statClues">0</span> / <span id="statCivs">0</span></p>
-            </div>
-          </div>
-
-          <div class="reunion-scene hidden" id="reunionScene">
-            <div class="reunion-card">
-              <img src="images/games/kio.png" alt="Kio">
-              <div class="reunion-name">Kio</div>
-              <div class="reunion-role">Father</div>
-            </div>
-            <div class="reunion-card">
-              <img src="images/games/eya.png" alt="Eya">
-              <div class="reunion-name">Eya</div>
-              <div class="reunion-role">Mother</div>
-            </div>
-            <div class="reunion-card">
-              <img src="images/games/kian.png" alt="Kian">
-              <div class="reunion-name">Kian</div>
-              <div class="reunion-role">Son</div>
-            </div>
-          </div>
-
-          <div class="actions">
-            <button class="cta" id="nextBtn" type="button">Continue</button>
-            <button class="cta secondary" id="restartBtn" type="button">Restart Game</button>
-          </div>
-        </div>
-      </div>
-
+<!-- PAGE 2 : STORE -->
+<section class="view" id="storeView">
+  <div class="topbar">
+    <div class="top-left">
+      <button id="backFromStoreTopBtn">← Back</button>
+    </div>
+    <div class="top-right">
+      <button id="storeRefreshBtn">Refresh</button>
     </div>
   </div>
 
-  <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-    const gameWrap = document.getElementById("gameWrap");
+  <div class="title-wrap">
+    <h1 class="page-title">Mission Store</h1>
+    <p class="page-subtitle">Choose gear for your mission loadout.</p>
+  </div>
 
-    const ui = {
-      missionTitle: document.getElementById("missionTitle"),
-      missionDesc: document.getElementById("missionDesc"),
-      objectiveChips: document.getElementById("objectiveChips"),
-      healthChip: document.getElementById("healthChip"),
-      ammoChip: document.getElementById("ammoChip"),
-      scoreChip: document.getElementById("scoreChip"),
-      civChip: document.getElementById("civChip"),
-      timerText: document.getElementById("timerText"),
-      clueChip: document.getElementById("clueChip"),
-      enemyChip: document.getElementById("enemyChip"),
-      rescueChip: document.getElementById("rescueChip"),
-      allyPill: document.getElementById("allyPill"),
-      aimPill: document.getElementById("aimPill"),
-      startOverlay: document.getElementById("startOverlay"),
-      howOverlay: document.getElementById("howOverlay"),
-      messageOverlay: document.getElementById("messageOverlay"),
-      messageTitle: document.getElementById("messageTitle"),
-      messageText: document.getElementById("messageText"),
-      statScore: document.getElementById("statScore"),
-      statAcc: document.getElementById("statAcc"),
-      statClues: document.getElementById("statClues"),
-      statCivs: document.getElementById("statCivs"),
-      nextBtn: document.getElementById("nextBtn"),
-      radioBox: document.getElementById("radioBox"),
-      radioLabel: document.getElementById("radioLabel"),
-      radioText: document.getElementById("radioText"),
-      levelIntro: document.getElementById("levelIntro"),
-      introLevel: document.getElementById("introLevel"),
-      introTitle: document.getElementById("introTitle"),
-      introSub: document.getElementById("introSub"),
-      screen: document.getElementById("screen"),
-      reunionScene: document.getElementById("reunionScene")
-    };
+  <div class="store-layout">
+    <div class="store-grid" id="storeGrid"></div>
 
-    const imageSources = {
-      kio: ["images/games/kio.png"],
-      eya: ["images/games/eya.png"],
-      kian: ["images/games/kian.png"],
-      criminal1: ["images/games/game1/criminal1.png"],
-      criminal2: ["images/games/game1/criminal2.png"],
-      finalboss: ["images/games/game1/finalboss.png", "mages/games/game1/finalboss.png"],
-      ally1: ["images/games/game1/ally1.png"],
-      ally2: ["images/games/game1/ally2.png"],
-      civilian1: ["images/games/game1/civillian1.png"],
-      civilian2: ["images/games/game1/civillian2.png"],
-      civilian3: ["images/games/game1/civillian3.png"],
-      civilian4: ["images/games/game1/civillian4.png"]
-    };
+    <div class="store-side">
+      <div class="store-card">
+        <h3 id="detailTitle">Item Name</h3>
+        <p id="detailDesc"></p>
+      </div>
 
-    const images = {};
+      <div class="store-card">
+        <h3>What It Does</h3>
+        <p id="detailEffect"></p>
+      </div>
 
-    function loadImageCandidates(name, sources) {
-      return new Promise(resolve => {
-        let idx = 0;
-        function tryNext() {
-          if (idx >= sources.length) {
-            images[name] = null;
-            resolve();
-            return;
-          }
-          const img = new Image();
-          img.onload = () => { images[name] = img; resolve(); };
-          img.onerror = () => { idx++; tryNext(); };
-          img.src = sources[idx];
-        }
-        tryNext();
-      });
+      <div class="store-card">
+        <h3>Wallet</h3>
+        <p>Available Points : <span id="storePoints">0</span></p>
+        <p>Status : <span id="buyStatusText">—</span></p>
+      </div>
+
+      <div class="store-card quantity-card">
+        <div class="qty-wrap">
+          <button id="qtyMinus">-</button>
+          <span id="qtyValue">1</span>
+          <button id="qtyPlus">+</button>
+        </div>
+      </div>
+
+      <div class="store-actions">
+        <button id="buySelectedBtn" class="buy-btn">Buy</button>
+        <button id="equipSelectedBtn" class="equip-btn">Equip</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE 3 : INGAME -->
+<section class="view" id="gameView">
+  <div class="topbar">
+    <div class="top-left">
+      <button id="buyBtn">🛒 Buy</button>
+      <button id="backToMenuBtn">← Menu</button>
+    </div>
+    <div class="top-right">
+      <button id="restartTopBtn">Restart</button>
+    </div>
+  </div>
+
+  <div class="title-wrap game-title">
+    <h1>Shoot The Enemies</h1>
+    <p id="gameSubtitle">Beat the timer and clear all enemies before bullets run out.</p>
+  </div>
+
+  <div class="hud-panel">
+    <div class="hud-rows">
+      <div class="hud-row">
+        <div class="hud-tag">Level <strong id="hudLevel">1</strong></div>
+        <div class="hud-tag">Time <strong id="hudTimer">60s</strong></div>
+        <div class="hud-tag">Kills <strong><span id="hudKills">0</span>/<span id="hudTargetKills">0</span></strong></div>
+        <div class="hud-tag">Points <strong id="hudPoints">0</strong></div>
+      </div>
+
+      <div class="hud-row">
+        <div class="hud-tag">Weapon <strong id="hudWeapon">Gun</strong></div>
+        <div class="hud-tag">Bullets <strong id="hudBullets">10</strong></div>
+        <div class="hud-tag">Misses <strong><span id="hudMisses">0</span>/<span id="hudMissLimit">0</span></strong></div>
+      </div>
+
+      <div class="hud-row" id="combatHudRow">
+        <div class="hud-tag">Life <strong id="hudLives">—</strong></div>
+        <div class="hud-tag">Vest <strong id="hudVest">—</strong></div>
+        <div class="hud-tag">Hooks <strong id="hudHooks">0</strong></div>
+        <div class="hud-tag">Saved <strong><span id="hudSaved">0</span>/<span id="hudSavedTarget">0</span></strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arena-wrap">
+    <div class="arena" id="arena">
+      <div class="arena-bg">
+        <img id="arenaBgImg" alt="Arena Background">
+      </div>
+
+      <div class="notice" id="notice"></div>
+
+      <div class="safe-zone" id="safeZone">SAFE ZONE</div>
+
+      <div class="player" id="player">
+        <img id="playerImg" alt="Player">
+      </div>
+
+      <div class="crosshair" id="crosshair"></div>
+      <div class="aim-line" id="aimLine"></div>
+
+      <div class="radial-wheel" id="radialWheel"></div>
+    </div>
+  </div>
+</section>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2 id="overlayTitle"></h2>
+    <p id="overlayText"></p>
+
+    <div class="modal-actions">
+      <button id="overlayPrimary">Continue</button>
+      <button id="overlaySecondary">Back</button>
+    </div>
+  </div>
+</div>
+
+</div>
+</div>
+
+<script>
+const SOUND = {
+  gun: null,
+  knife: null,
+  bomb: null
+};
+
+function playSound(type) {
+  if (!SOUND[type]) return;
+  SOUND[type].currentTime = 0;
+  SOUND[type].play().catch(() => {});
+}
+
+const IMAGE_PATHS = {
+  bloodSplash: 'images/games/game1/enemies/blood.png',
+  bloodParticle: 'images/games/game1/enemies/blood.png'
+};
+
+const MISSIONS = [
+  {
+    id: 'mission1',
+    level: 1,
+    name: 'Athletic',
+    unlocked: true,
+    image: 'images/games/game1/level/1.png',
+    desc: 'Kill all 5 enemies within 1 minute.'
+  },
+  {
+    id: 'mission2',
+    level: 2,
+    name: 'Patrolman',
+    unlocked: false,
+    image: 'images/games/game1/level/2.png',
+    desc: 'Kill all 7 enemies within 1 minute and 30 seconds.'
+  },
+  {
+    id: 'mission3',
+    level: 3,
+    name: 'Camouflage',
+    unlocked: false,
+    image: 'images/games/game1/level/3.png',
+    desc: 'Kill all 8 enemies within 2 minutes.'
+  },
+  {
+    id: 'mission4',
+    level: 4,
+    name: 'Armored Patrolman',
+    unlocked: false,
+    image: 'images/games/game1/level/4.png',
+    desc: 'Kill enemies and rescue Eya.'
+  },
+  {
+    id: 'mission5',
+    level: 5,
+    name: 'Armored Camouflage',
+    unlocked: false,
+    image: 'images/games/game1/level/5.png',
+    desc: 'Kill enemies and rescue Eya and Kian.'
+  }
+];
+
+const LEVELS = {
+  1: { enemyCount: 5, bullets: 10, timer: 60, lives: 0, hooks: 0, missLimit: 5, enemySpeed: 0.72, specialSpeed: 0.85, movePlayer: false },
+  2: { enemyCount: 7, bullets: 10, timer: 90, lives: 0, hooks: 0, missLimit: 3, enemySpeed: 0.78, specialSpeed: 0.92, movePlayer: false },
+  3: { enemyCount: 8, bullets: 10, timer: 120, lives: 0, hooks: 0, missLimit: 999, enemySpeed: 1.0, specialSpeed: 1.1, movePlayer: false },
+  4: { enemyCount: 9, bullets: 10, timer: 150, lives: 5, hooks: 3, missLimit: 999, enemySpeed: 1.08, specialSpeed: 1.36, movePlayer: true },
+  5: { enemyCount: 10, bullets: 10, timer: 180, lives: 3, hooks: 4, missLimit: 999, enemySpeed: 1.22, specialSpeed: 1.58, movePlayer: true }
+};
+
+const STORE_ITEMS = [
+  {
+    id: 'gun1',
+    name: 'Cherry Blaster',
+    category: 'Guns',
+    price: 0,
+    type: 'weapon',
+    mode: 'gun',
+    levelMin: 1,
+    owned: true,
+    quantity: Infinity,
+    image: 'images/games/game1/items/G1.png'
+  },
+  {
+    id: 'gun2',
+    name: 'Black Eclipse',
+    category: 'Guns',
+    price: 40,
+    type: 'weapon',
+    mode: 'gun',
+    levelMin: 4,
+    owned: false,
+    quantity: Infinity,
+    image: 'images/games/game1/items/G2.png'
+  },
+  {
+    id: 'gun3',
+    name: 'Purple Specter',
+    category: 'Guns',
+    price: 60,
+    type: 'weapon',
+    mode: 'gun',
+    levelMin: 4,
+    owned: false,
+    quantity: Infinity,
+    image: 'images/games/game1/items/G3.png'
+  },
+  {
+    id: 'knife1',
+    name: 'Sunflare Edge',
+    category: 'Knives',
+    price: 30,
+    type: 'weapon',
+    mode: 'knife',
+    levelMin: 1,
+    owned: false,
+    quantity: Infinity,
+    image: 'images/games/game1/items/K1.png'
+  },
+  {
+    id: 'knife2',
+    name: 'Rosethorn Blade',
+    category: 'Knives',
+    price: 40,
+    type: 'weapon',
+    mode: 'knife',
+    levelMin: 4,
+    owned: false,
+    quantity: Infinity,
+    image: 'images/games/game1/items/K2.png'
+  },
+  {
+    id: 'bomb1',
+    name: 'Bloodflare',
+    category: 'Bombs',
+    price: 60,
+    type: 'weapon',
+    mode: 'bomb',
+    levelMin: 1,
+    owned: false,
+    quantity: 0,
+    image: 'images/games/game1/items/B1.png'
+  },
+  {
+    id: 'bomb2',
+    name: 'Last Mercy',
+    category: 'Bombs',
+    price: 100,
+    type: 'weapon',
+    mode: 'bomb',
+    levelMin: 4,
+    owned: false,
+    quantity: 0,
+    image: 'images/games/game1/items/B2.png'
+  },
+  {
+    id: 'hook',
+    name: 'Hook',
+    category: 'Hooks',
+    price: 50,
+    type: 'hook',
+    mode: 'hook',
+    levelMin: 4,
+    owned: false,
+    quantity: 0,
+    image: 'images/games/game1/items/hook.png'
+  },
+  {
+    id: 'ammo5',
+    name: '+5 Bullets',
+    category: 'Bullets',
+    price: 50,
+    type: 'ammo',
+    amount: 5,
+    levelMin: 3,
+    owned: false,
+    quantity: 0,
+    image: 'images/games/game1/items/bullet.png'
+  },
+  {
+    id: 'ammo10',
+    name: '+10 Bullets',
+    category: 'Bullets',
+    price: 20,
+    type: 'ammo',
+    amount: 10,
+    levelMin: 3,
+    owned: false,
+    quantity: 0,
+    image: 'images/games/game1/items/bullet.png'
+  },
+  {
+    id: 'vest',
+    name: 'Vest',
+    category: 'Bullets',
+    price: 25,
+    type: 'vest',
+    levelMin: 4,
+    owned: false,
+    quantity: 0,
+    image: 'images/games/vest.png'
+  }
+];
+
+const state = {
+  points: 0,
+  selectedMission: 'mission1',
+  storeSelected: 'gun1',
+  buyQuantity: 1,
+  inventory: {
+    weapons: ['gun1'],
+    vest: false
+  },
+  equipped: 'gun1',
+  game: null
+};
+
+const el = {
+  missionGrid: document.getElementById('missionGrid'),
+  levelDescription: document.getElementById('levelDescription'),
+  infoAvatar: document.getElementById('infoAvatar'),
+
+  storeGrid: document.getElementById('storeGrid'),
+  detailTitle: document.getElementById('detailTitle'),
+  detailDesc: document.getElementById('detailDesc'),
+  detailEffect: document.getElementById('detailEffect'),
+  storePoints: document.getElementById('storePoints'),
+  buyStatusText: document.getElementById('buyStatusText'),
+
+  qtyMinus: document.getElementById('qtyMinus'),
+  qtyPlus: document.getElementById('qtyPlus'),
+  qtyValue: document.getElementById('qtyValue'),
+
+  buyBtn: document.getElementById('buySelectedBtn'),
+  equipBtn: document.getElementById('equipSelectedBtn'),
+
+  radialWheel: document.getElementById('radialWheel'),
+  arena: document.getElementById('arena'),
+  player: document.getElementById('player'),
+  safeZone: document.getElementById('safeZone'),
+
+  hudWeapon: document.getElementById('hudWeapon'),
+  hudBullets: document.getElementById('hudBullets'),
+  hudVest: document.getElementById('hudVest'),
+  combatHudRow: document.getElementById('combatHudRow')
+};
+
+function getMission() {
+  return MISSIONS.find(m => m.id === state.selectedMission);
+}
+
+function getLevelConfig(level = getMission().level) {
+  return LEVELS[level];
+}
+
+function getItem(id) {
+  return STORE_ITEMS.find(i => i.id === id);
+}
+
+function itemAllowedForMission(item, level) {
+  return level >= (item.levelMin || 1);
+}
+
+function isItemOwned(item) {
+  if (!item) return false;
+  if (item.type === 'weapon') return !!item.owned;
+  if (item.type === 'hook' || item.type === 'ammo' || item.type === 'vest') return (item.quantity || 0) > 0;
+  return false;
+}
+
+function getOwnedItems() {
+  const list = [];
+
+  STORE_ITEMS.forEach(item => {
+    if (!itemAllowedForMission(item, getMission().level)) return;
+
+    if (item.type === 'weapon' && item.owned) {
+      list.push(item);
+      return;
     }
 
-    const levels = [
-      {
-        id: 1,
-        name: "Level 1 — Abandoned Street",
-        shortName: "Abandoned Street",
-        desc: "The streets are cold, quiet, and dangerous. Find the clues, save one civilian, and rescue Eya.",
-        radio: "Kio, Eya is somewhere in this district. Stay sharp and bring her back safely.",
-        bgTop: "#243c54",
-        bgBottom: "#0d1725",
-        roadAccent: "#7ec8ff",
-        time: 140,
-        targetRescue: "Eya",
-        clueGoal: 2,
-        enemyGoal: 5,
-        civilianCount: 3,
-        dangerCivilianCount: 1,
-        enemySpeed: [120, 165],
-        boss: false,
-        criminalImage: "criminal1",
-        clearText: "Eya has been rescued. Kio can move to the next location."
-      },
-      {
-        id: 2,
-        name: "Level 2 — Warehouse Hideout",
-        shortName: "Warehouse Hideout",
-        desc: "The hideout is tighter and more dangerous. Save another civilian, gain another ally, and rescue Kian.",
-        radio: "Kio, Kian should be inside the warehouse sector. Watch the civilians and keep pushing.",
-        bgTop: "#442e29",
-        bgBottom: "#18110e",
-        roadAccent: "#ffd166",
-        time: 160,
-        targetRescue: "Kian",
-        clueGoal: 3,
-        enemyGoal: 6,
-        civilianCount: 4,
-        dangerCivilianCount: 1,
-        enemySpeed: [140, 200],
-        boss: false,
-        criminalImage: "criminal2",
-        clearText: "Kian has been rescued. Only one final mission remains."
-      },
-      {
-        id: 3,
-        name: "Level 3 — Final Rescue Room",
-        shortName: "Final Rescue Room",
-        desc: "This is the final push. Defeat the mastermind and complete the dramatic family reunion.",
-        radio: "Kio, this is the last room. Finish it. Bring everyone together.",
-        bgTop: "#3a1b30",
-        bgBottom: "#120913",
-        roadAccent: "#ffb7d7",
-        time: 180,
-        targetRescue: "Final Reunion",
-        clueGoal: 2,
-        enemyGoal: 1,
-        civilianCount: 2,
-        dangerCivilianCount: 0,
-        enemySpeed: [150, 210],
-        boss: true,
-        criminalImage: "finalboss",
-        clearText: "The mission is over. Kio, Eya, and Kian are finally together."
-      }
-    ];
+    if ((item.type === 'hook' || item.type === 'ammo' || item.type === 'vest') && item.quantity > 0) {
+      list.push(item);
+    }
+  });
 
-    const state = {
-      levelIndex: 0,
-      running: false,
-      paused: false,
-      gameOver: false,
-      score: 0,
-      shotsFired: 0,
-      shotsHit: 0,
-      civiliansHit: 0,
-      rescueLog: [],
-      alliesUnlocked: 0,
-      keys: { left: false, right: false },
-      bullets: [],
+  return list;
+}
+
+function getSafeZoneRectInArena() {
+  return {
+    x: el.safeZone.offsetLeft,
+    y: el.safeZone.offsetTop,
+    width: el.safeZone.offsetWidth,
+    height: el.safeZone.offsetHeight
+  };
+}
+
+function updateQuantityUI() {
+  el.qtyValue.textContent = state.buyQuantity;
+}
+
+el.qtyMinus.onclick = () => {
+  state.buyQuantity = Math.max(1, state.buyQuantity - 1);
+  updateQuantityUI();
+  renderStoreDetails();
+};
+
+el.qtyPlus.onclick = () => {
+  state.buyQuantity++;
+  updateQuantityUI();
+  renderStoreDetails();
+};
+
+function getItemStatus(item) {
+  const level = getMission().level;
+
+  if (!itemAllowedForMission(item, level)) {
+    return { text: 'Locked for this level', cls: 'status-no' };
+  }
+
+  if (item.type === 'weapon' && item.owned) {
+    return { text: 'Owned', cls: 'status-yes' };
+  }
+
+  if (item.type !== 'weapon' && item.quantity > 0) {
+    return { text: `Available x${item.quantity}`, cls: 'status-yes' };
+  }
+
+  if (state.points >= item.price * state.buyQuantity) {
+    return { text: 'Can buy', cls: 'status-yes' };
+  }
+
+  return { text: 'Not enough points', cls: 'status-no' };
+}
+function renderStoreDetails() {
+  const item = getItem(state.storeSelected);
+  if (!item) return;
+
+  const status = getItemStatus(item);
+
+  el.detailTitle.textContent = item.name;
+  el.detailDesc.textContent = `Price: ${item.price} each`;
+
+  if (item.id === 'gun1') {
+    el.detailEffect.textContent = 'Default gun. Shoots 1 enemy at a time.';
+  } else if (item.id === 'gun2') {
+    el.detailEffect.textContent = 'Shoots up to 3 enemies in one attack if aimed well.';
+  } else if (item.id === 'gun3') {
+    el.detailEffect.textContent = 'Shoots up to 5 enemies in one attack if aimed well.';
+  } else if (item.id === 'knife1') {
+    el.detailEffect.textContent = 'Cuts up to 2 nearby enemies at once.';
+  } else if (item.id === 'knife2') {
+    el.detailEffect.textContent = 'Cuts up to 3 nearby enemies at once.';
+  } else if (item.id === 'bomb1') {
+    el.detailEffect.textContent = 'Explosion can kill up to 5 enemies inside the blast radius.';
+  } else if (item.id === 'bomb2') {
+    el.detailEffect.textContent = 'Explosion can kill up to 10 enemies inside the blast radius.';
+  } else if (item.id === 'hook') {
+    el.detailEffect.textContent = 'Use to hook and drag civilians into the safe zone.';
+  } else if (item.type === 'ammo') {
+    el.detailEffect.textContent = `Adds ${item.amount} bullets when used in-game.`;
+  } else if (item.type === 'vest') {
+    el.detailEffect.textContent = 'Single-use protection from one enemy shot.';
+  } else {
+    el.detailEffect.textContent = 'Mission item.';
+  }
+
+  el.storePoints.textContent = state.points;
+  el.buyStatusText.textContent = status.text;
+  el.buyStatusText.className = status.cls;
+}
+
+function buySelected() {
+  const item = getItem(state.storeSelected);
+  const level = getMission().level;
+
+  if (!item || !itemAllowedForMission(item, level)) {
+    flashNotice('Item locked');
+    return;
+  }
+
+  const total = item.price * state.buyQuantity;
+  if (state.points < total) {
+    flashNotice('Not enough points');
+    return;
+  }
+
+  if (item.type === 'weapon') {
+    if (item.owned) {
+      flashNotice('Already owned');
+      return;
+    }
+
+    state.points -= total;
+    item.owned = true;
+
+    if (!state.inventory.weapons.includes(item.id)) {
+      state.inventory.weapons.push(item.id);
+    }
+
+    flashNotice(`${item.name} purchased`);
+  } else {
+    state.points -= total;
+    item.quantity += state.buyQuantity;
+    item.owned = true;
+    flashNotice(`${item.name} purchased`);
+  }
+
+  state.buyQuantity = 1;
+  updateQuantityUI();
+  renderStore();
+  renderWheel();
+  updateHUD();
+}
+
+function equipSelected() {
+  const item = getItem(state.storeSelected);
+  const level = getMission().level;
+
+  if (!item || !itemAllowedForMission(item, level)) {
+    flashNotice('Item locked');
+    return;
+  }
+
+  if (!isItemOwned(item) && item.type !== 'weapon') {
+    flashNotice('Buy it first');
+    return;
+  }
+
+  if (item.type === 'weapon' && !item.owned) {
+    flashNotice('Buy it first');
+    return;
+  }
+
+  state.equipped = item.id;
+  renderWheel();
+  updateHUD();
+  flashNotice(`${item.name} equipped`);
+}
+
+function renderMissionCards() {
+  el.missionGrid.innerHTML = '';
+
+  MISSIONS.forEach(mission => {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'mission-card';
+
+    if (mission.id === state.selectedMission) card.classList.add('selected');
+    if (!mission.unlocked) card.classList.add('locked');
+
+    card.innerHTML = `
+      <div class="mission-thumb">
+        <img src="${mission.image}" alt="${mission.name}">
+        ${!mission.unlocked ? '<div class="locked-badge">Locked</div>' : ''}
+      </div>
+      <div class="mission-name">${mission.name}</div>
+    `;
+
+    card.onclick = () => {
+      if (!mission.unlocked) return;
+      state.selectedMission = mission.id;
+      renderMissionCards();
+      updateTopInfo();
+      renderStore();
+    };
+
+    el.missionGrid.appendChild(card);
+  });
+
+  updateTopInfo();
+}
+
+function updateTopInfo() {
+  const mission = getMission();
+  if (!mission) return;
+  el.levelDescription.textContent = mission.desc;
+  el.infoAvatar.src = mission.image;
+  el.storePoints.textContent = state.points;
+}
+
+function renderStore() {
+  const categories = ['Guns', 'Knives', 'Bombs', 'Hooks', 'Bullets'];
+  el.storeGrid.innerHTML = '';
+
+  categories.forEach(cat => {
+    const label = document.createElement('div');
+    label.className = 'row-label';
+    label.textContent = cat;
+    el.storeGrid.appendChild(label);
+
+    const items = STORE_ITEMS.filter(i => i.category === cat);
+
+    for (let i = 0; i < 4; i++) {
+      const item = items[i];
+
+      if (!item) {
+        const empty = document.createElement('div');
+        empty.style.visibility = 'hidden';
+        empty.style.minHeight = '66px';
+        el.storeGrid.appendChild(empty);
+        continue;
+      }
+
+      const slot = document.createElement('button');
+      slot.type = 'button';
+      slot.className = 'store-slot';
+
+      if (item.id === state.storeSelected) slot.classList.add('selected');
+      if (!itemAllowedForMission(item, getMission().level)) slot.classList.add('locked');
+
+      slot.innerHTML = `
+        <img src="${item.image}" alt="${item.name}">
+        <div class="slot-price">${item.price}</div>
+      `;
+
+      slot.onclick = () => {
+        state.storeSelected = item.id;
+        renderStore();
+      };
+
+      el.storeGrid.appendChild(slot);
+    }
+  });
+
+  renderStoreDetails();
+}
+
+function formatTime(value) {
+  return `${Math.max(0, Math.ceil(value))}s`;
+}
+
+function updateHUD() {
+  if (!state.game) return;
+
+  document.getElementById('hudLevel').textContent = state.game.level;
+  document.getElementById('hudPoints').textContent = state.points;
+  document.getElementById('hudKills').textContent = state.game.kills;
+  document.getElementById('hudTargetKills').textContent = state.game.enemyTarget;
+  document.getElementById('hudTimer').textContent = formatTime(state.game.timeLeft);
+  document.getElementById('hudWeapon').textContent = getItem(state.equipped)?.name || '—';
+  document.getElementById('hudBullets').textContent = state.game.bullets;
+  document.getElementById('hudMisses').textContent = state.game.misses;
+  document.getElementById('hudMissLimit').textContent = state.game.missLimit === 999 ? '∞' : state.game.missLimit;
+  document.getElementById('hudLives').textContent = state.game.level >= 4 ? state.game.lives : '—';
+  document.getElementById('hudVest').textContent = state.inventory.vest ? '✓' : '—';
+  document.getElementById('hudHooks').textContent = getItem('hook').quantity || 0;
+  document.getElementById('hudSaved').textContent = state.game.savedCount;
+  document.getElementById('hudSavedTarget').textContent = state.game.targetSaved;
+  el.combatHudRow.style.display = state.game.level >= 4 ? 'flex' : 'none';
+}
+
+function switchView(viewId) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(viewId).classList.add('active');
+}
+
+function getArenaRect() {
+  return el.arena.getBoundingClientRect();
+}
+
+function clearArena() {
+  el.arena.querySelectorAll('.entity,.enemy-bullet,.blast,.blood-splash,.blood-particle,.floating-msg,.points-pop,.hook-line,.muzzle').forEach(n => n.remove());
+}
+
+function rand(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+function clamp(v, min, max) {
+  return Math.max(min, Math.min(max, v));
+}
+
+function dist(x1, y1, x2, y2) {
+  return Math.hypot(x2 - x1, y2 - y1);
+}
+
+function createEntity(x, y, src, label, extraClass = '') {
+  const node = document.createElement('div');
+  node.className = `entity ${extraClass}`.trim();
+  node.style.left = x + 'px';
+  node.style.top = y + 'px';
+  node.innerHTML = `
+    <img src="${src}" alt="${label}">
+    <div class="label">${label}</div>
+  `;
+  el.arena.appendChild(node);
+  return node;
+}
+
+function spawnBloodEffect(x, y) {
+  const splash = document.createElement('div');
+  splash.className = 'blood-splash';
+  splash.style.left = x + 'px';
+  splash.style.top = y + 'px';
+  splash.innerHTML = `<img src="${IMAGE_PATHS.bloodSplash}" alt="blood">`;
+  el.arena.appendChild(splash);
+  setTimeout(() => splash.remove(), 850);
+
+  for (let i = 0; i < 6; i++) {
+    const p = document.createElement('div');
+    p.className = 'blood-particle';
+    p.style.left = x + 'px';
+    p.style.top = y + 'px';
+    p.innerHTML = `<img src="${IMAGE_PATHS.bloodParticle}" alt="blood">`;
+    el.arena.appendChild(p);
+
+    const dx = rand(-20, 20);
+    const dy = rand(-18, 18);
+
+    p.animate(
+      [
+        { transform: 'translate(-50%,-50%) scale(.8)', opacity: 1 },
+        { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(1)`, opacity: 0 }
+      ],
+      { duration: 650, easing: 'ease-out', fill: 'forwards' }
+    );
+
+    setTimeout(() => p.remove(), 700);
+  }
+}
+
+function floatText(x, y, text, cls) {
+  const n = document.createElement('div');
+  n.className = cls;
+  n.textContent = text;
+  n.style.left = x + 'px';
+  n.style.top = y + 'px';
+  el.arena.appendChild(n);
+  setTimeout(() => n.remove(), 700);
+}
+
+function spawnMuzzle(x, y) {
+  const m = document.createElement('div');
+  m.className = 'muzzle';
+  m.style.left = x + 'px';
+  m.style.top = y + 'px';
+  m.style.opacity = '1';
+  el.arena.appendChild(m);
+  setTimeout(() => m.remove(), 120);
+}
+
+function flashNotice(text) {
+  const n = document.getElementById('notice');
+  n.textContent = text;
+  n.classList.add('show');
+
+  setTimeout(() => {
+    n.classList.remove('show');
+  }, 1200);
+}
+
+function acquireVest() {
+  state.inventory.vest = true;
+  flashNotice('Vest acquired');
+}
+
+function playerHit() {
+  if (state.inventory.vest) {
+    state.inventory.vest = false;
+    flashNotice('Vest saved you');
+    updateHUD();
+    return;
+  }
+
+  state.game.lives--;
+
+  if (state.game.lives <= 0) {
+    endMission(false, 'You lost all lives');
+    return;
+  }
+
+  updateHUD();
+}
+
+function getGunHitLimit(item) {
+  if (!item) return 1;
+  if (item.id === 'gun2') return 3;
+  if (item.id === 'gun3') return 5;
+  return 1;
+}
+
+function getKnifeHitLimit(item) {
+  if (!item) return 0;
+  return item.id === 'knife2' ? 3 : 2;
+}
+
+function ensureHookVisibleForLevel(level) {
+  const hook = getItem('hook');
+  if (level >= 4 && hook.quantity <= 0) {
+    hook.quantity = Math.max(hook.quantity, LEVELS[level].hooks);
+    hook.owned = true;
+  }
+}
+
+function useVestItem(item) {
+  if (!item || item.quantity <= 0) {
+    flashNotice('No vest left');
+    return false;
+  }
+
+  item.quantity--;
+  state.inventory.vest = true;
+  renderWheel();
+  updateHUD();
+  flashNotice('Vest equipped');
+  return true;
+}
+
+function useAmmo(item) {
+  if (!item || item.quantity <= 0) {
+    flashNotice('No ammo left');
+    return false;
+  }
+
+  item.quantity--;
+  state.game.bullets += item.amount;
+  renderWheel();
+  updateHUD();
+  flashNotice(`${item.name} used`);
+  return true;
+}
+
+function registerMiss() {
+  state.game.misses++;
+  floatText(state.game.pointer.x, state.game.pointer.y, 'MISS', 'floating-msg');
+
+  if (state.game.missLimit < 999 && state.game.misses > state.game.missLimit) {
+    endMission(false, 'Too many missed shots');
+    return;
+  }
+
+  if (state.game.bullets <= 0 && state.game.kills < state.game.enemyTarget) {
+    endMission(false, 'You ran out of bullets');
+    return;
+  }
+
+  updateHUD();
+}
+
+function killEnemy(enemy) {
+  if (!enemy.alive) return;
+
+  enemy.alive = false;
+  enemy.node.classList.add('dead');
+  setTimeout(() => enemy.node.remove(), 180);
+
+  spawnBloodEffect(enemy.x, enemy.y);
+
+  state.game.kills++;
+  state.points += 5;
+
+  floatText(enemy.x, enemy.y, '+5', 'points-pop');
+
+  if (enemy.special) {
+    acquireVest();
+  }
+
+  updateHUD();
+  checkWin();
+}
+
+function getShootTargets(limit) {
+  const alive = state.game.enemies.filter(e => e.alive);
+  if (!alive.length) return [];
+
+  const pointerX = state.game.pointer.x;
+  const pointerY = state.game.pointer.y;
+
+  const scored = alive
+    .map(enemy => {
+      const pointerDistance = dist(enemy.x, enemy.y, pointerX, pointerY);
+      const laneOffset = Math.abs(enemy.y - pointerY);
+      return { enemy, pointerDistance, laneOffset };
+    })
+    .filter(entry => entry.pointerDistance <= 118 || entry.laneOffset <= 54)
+    .sort((a, b) => {
+      if (a.pointerDistance !== b.pointerDistance) return a.pointerDistance - b.pointerDistance;
+      return a.laneOffset - b.laneOffset;
+    })
+    .slice(0, limit)
+    .map(entry => entry.enemy);
+
+  return scored;
+}
+
+function shootGun() {
+  if (state.game.bullets <= 0) {
+    endMission(false, 'You ran out of bullets');
+    return;
+  }
+
+  const item = getCurrentItem();
+  const hitLimit = getGunHitLimit(item);
+
+  playSound('gun');
+  state.game.bullets--;
+  spawnMuzzle(state.game.playerX, state.game.playerY - 16);
+
+  const targets = getShootTargets(hitLimit);
+  if (!targets.length) {
+    registerMiss();
+    return;
+  }
+
+  targets.forEach(killEnemy);
+  updateHUD();
+}
+
+function knifeAttack() {
+  const item = getCurrentItem();
+  if (!item || !item.owned) {
+    flashNotice('Buy it first');
+    return;
+  }
+
+  playSound('knife');
+
+  const hits = state.game.enemies
+    .filter(enemy => enemy.alive && dist(enemy.x, enemy.y, state.game.pointer.x, state.game.pointer.y) < 90)
+    .sort((a, b) => dist(a.x, a.y, state.game.pointer.x, state.game.pointer.y) - dist(b.x, b.y, state.game.pointer.x, state.game.pointer.y))
+    .slice(0, getKnifeHitLimit(item));
+
+  if (!hits.length) {
+    registerMiss();
+    return;
+  }
+
+  hits.forEach(killEnemy);
+  updateHUD();
+}
+
+function bombAttack() {
+  const item = getCurrentItem();
+  if (!item || item.quantity <= 0) {
+    flashNotice('No bomb left');
+    return;
+  }
+
+  playSound('bomb');
+  item.quantity = Math.max(0, item.quantity - 1);
+
+  const blast = document.createElement('div');
+  blast.className = 'blast';
+  blast.style.left = state.game.pointer.x + 'px';
+  blast.style.top = state.game.pointer.y + 'px';
+  el.arena.appendChild(blast);
+  setTimeout(() => blast.remove(), 350);
+
+  const radius = item.id === 'bomb2' ? 185 : 132;
+  const maxHits = item.id === 'bomb2' ? 10 : 5;
+
+  const hits = state.game.enemies
+    .filter(e => e.alive && dist(e.x, e.y, state.game.pointer.x, state.game.pointer.y) <= radius)
+    .sort((a, b) => dist(a.x, a.y, state.game.pointer.x, state.game.pointer.y) - dist(b.x, b.y, state.game.pointer.x, state.game.pointer.y))
+    .slice(0, maxHits);
+
+  if (!hits.length) {
+    registerMiss();
+    renderWheel();
+    return;
+  }
+
+  hits.forEach(killEnemy);
+  renderWheel();
+  updateHUD();
+}
+
+function getCurrentItem() {
+  return getItem(state.equipped);
+}
+function spawnEnemies(game) {
+  const rect = getArenaRect();
+  const cfg = getLevelConfig(game.level);
+
+  for (let i = 0; i < game.enemyTarget; i++) {
+    const special = game.level >= 4 && i === game.enemyTarget - 1;
+    const speedScale = special ? cfg.specialSpeed : cfg.enemySpeed;
+
+    const x = rand(92, rect.width - 76);
+    const y = rand(74, rect.height - 132);
+
+    const vxBase = rand(60, 108) * speedScale * (Math.random() < 0.5 ? -1 : 1);
+    const vyBase = rand(40, 88) * speedScale * (Math.random() < 0.5 ? -1 : 1);
+
+    const enemy = {
+      id: `enemy_${i}`,
+      x,
+      y,
+      vx: vxBase,
+      vy: vyBase,
+      alive: true,
+      special,
+      node: createEntity(
+        x,
+        y,
+        `images/games/game1/enemies/${(i % 10) + 1}.png`,
+        special ? 'MASTER' : 'ENEMY',
+        special ? 'enemy special' : 'enemy'
+      )
+    };
+
+    game.enemies.push(enemy);
+  }
+}
+
+function spawnCivilians(game) {
+  if (game.level < 4) return;
+
+  const rect = getArenaRect();
+  const people = [
+    { id: 'eya', name: 'EYA', img: 'images/games/eya.png' }
+  ];
+
+  if (game.level === 5) {
+    people.push({ id: 'kian', name: 'KIAN', img: 'images/games/kian.png' });
+  }
+
+  people.forEach(p => {
+    const x = rand(124, rect.width - 148);
+    const y = rand(108, rect.height - 124);
+
+    const civ = {
+      ...p,
+      x,
+      y,
+      saved: false,
+      alive: true,
+      dragging: false,
+      dragOffsetX: 0,
+      dragOffsetY: 0,
+      node: createEntity(x, y, p.img, p.name, 'civilian')
+    };
+
+    civ.node.dataset.civilianId = civ.id;
+    game.civilians.push(civ);
+  });
+}
+
+function positionPlayer() {
+  if (!state.game) return;
+  el.player.style.left = state.game.playerX + 'px';
+  el.player.style.top = state.game.playerY + 'px';
+}
+
+function positionCrosshair() {
+  if (!state.game) return;
+
+  const c = document.getElementById('crosshair');
+  const a = document.getElementById('aimLine');
+
+  c.style.left = state.game.pointer.x + 'px';
+  c.style.top = state.game.pointer.y + 'px';
+
+  const startX = state.game.playerX;
+  const startY = state.game.playerY - 14;
+  const dx = state.game.pointer.x - startX;
+  const dy = state.game.pointer.y - startY;
+  const length = Math.hypot(dx, dy);
+  const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+  a.style.left = startX + 'px';
+  a.style.top = startY + 'px';
+  a.style.width = Math.max(10, length - 16) + 'px';
+  a.style.transform = `rotate(${angle}deg)`;
+}
+
+function positionWheel() {
+  if (!state.game) return;
+
+  const wheel = el.radialWheel;
+  const wheelSize = wheel.offsetWidth || 146;
+  const rect = getArenaRect();
+
+  let left = state.game.playerX - wheelSize - 18;
+  let top = state.game.playerY - wheelSize * 0.52;
+
+  left = clamp(left, 8, rect.width - wheelSize - 8);
+  top = clamp(top, rect.height - wheelSize - 8 - 16, rect.height - wheelSize - 8);
+
+  if (state.game.level >= 4) {
+    top = clamp(state.game.playerY - wheelSize * 0.58, 74, rect.height - wheelSize - 8);
+  } else {
+    top = rect.height - wheelSize - 8;
+  }
+
+  wheel.style.left = left + 'px';
+  wheel.style.top = top + 'px';
+}
+
+function renderWheel() {
+  const wheel = el.radialWheel;
+  const items = getOwnedItems();
+
+  wheel.innerHTML = '';
+
+  if (!state.game || !items.length) {
+    wheel.classList.remove('show');
+    return;
+  }
+
+  wheel.classList.add('show');
+
+  const radius = items.length <= 1 ? 0 : 56;
+  const center = 73;
+  const step = items.length <= 1 ? 0 : (Math.PI * 2) / items.length;
+
+  items.forEach((item, i) => {
+    const angle = -Math.PI / 2 + (i * step);
+    const x = center + Math.cos(angle) * radius;
+    const y = center + Math.sin(angle) * radius;
+
+    const slot = document.createElement('div');
+    slot.className = 'wheel-slot';
+
+    const disableConsumable =
+      (item.type === 'hook' || item.type === 'ammo' || item.type === 'vest' || item.mode === 'bomb') &&
+      item.quantity <= 0;
+
+    if (disableConsumable) {
+      slot.classList.add('disabled');
+    }
+
+    if (state.equipped === item.id) {
+      slot.classList.add('active');
+    }
+
+    slot.style.left = x + 'px';
+    slot.style.top = y + 'px';
+
+    const img = document.createElement('img');
+    img.src = item.image;
+    img.alt = item.name;
+    slot.appendChild(img);
+
+    if (item.quantity !== Infinity) {
+      const count = document.createElement('div');
+      count.className = 'wheel-count';
+      count.textContent = item.quantity;
+      slot.appendChild(count);
+    }
+
+    slot.onclick = ev => {
+      ev.stopPropagation();
+      if (disableConsumable) return;
+      state.equipped = item.id;
+      renderWheel();
+      updateHUD();
+    };
+
+    wheel.appendChild(slot);
+  });
+
+  const centerIcon = document.createElement('div');
+  centerIcon.className = 'wheel-center';
+  centerIcon.innerHTML = `<img src="${getItem(state.equipped)?.image || getItem('gun1').image}" alt="Current item">`;
+  wheel.appendChild(centerIcon);
+
+  const label = document.createElement('div');
+  label.className = 'wheel-label';
+  label.textContent = getItem(state.equipped)?.name || 'Weapon';
+  wheel.appendChild(label);
+
+  positionWheel();
+}
+
+function updatePointerFromEvent(ev) {
+  if (!state.game) return;
+  const rect = getArenaRect();
+  state.game.pointer.x = clamp(ev.clientX - rect.left, 22, rect.width - 22);
+  state.game.pointer.y = clamp(ev.clientY - rect.top, 22, rect.height - 22);
+  positionCrosshair();
+}
+
+function startHookDrag(clientX, clientY) {
+  if (state.game.level < 4) return false;
+
+  const hook = getItem('hook');
+  if (!hook || hook.quantity <= 0) {
+    flashNotice('No hook left');
+    renderWheel();
+    return true;
+  }
+
+  const rect = getArenaRect();
+  const x = clientX - rect.left;
+  const y = clientY - rect.top;
+
+  const civ = state.game.civilians.find(c => c.alive && !c.saved && dist(c.x, c.y, x, y) < 42);
+  if (!civ) {
+    flashNotice('Tap a civilian');
+    return true;
+  }
+
+  if (state.game.draggedCivilian && state.game.draggedCivilian !== civ) {
+    state.game.draggedCivilian.dragging = false;
+    state.game.draggedCivilian.node.classList.remove('dragging');
+  }
+
+  state.game.draggedCivilian = civ;
+  civ.dragging = true;
+  civ.node.classList.add('dragging');
+
+  hook.quantity = Math.max(0, hook.quantity - 1);
+  renderWheel();
+  updateHUD();
+  flashNotice(`${civ.name} hooked`);
+  return true;
+}
+
+function updateHookDrag() {
+  if (!state.game || !state.game.draggedCivilian) return;
+
+  const civ = state.game.draggedCivilian;
+  if (!civ.alive || civ.saved) {
+    state.game.draggedCivilian = null;
+    return;
+  }
+
+  const pullX = state.game.pointer.x;
+  const pullY = state.game.pointer.y;
+
+  civ.x += (pullX - civ.x) * 0.22;
+  civ.y += (pullY - civ.y) * 0.22;
+
+  civ.node.style.left = civ.x + 'px';
+  civ.node.style.top = civ.y + 'px';
+
+  const line = state.game.hookLine;
+  const startX = state.game.playerX;
+  const startY = state.game.playerY - 14;
+  const dx = civ.x - startX;
+  const dy = civ.y - startY;
+  const len = Math.hypot(dx, dy);
+  const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+  line.style.display = 'block';
+  line.style.left = startX + 'px';
+  line.style.top = startY + 'px';
+  line.style.width = len + 'px';
+  line.style.transform = `rotate(${angle}deg)`;
+
+  const zone = getSafeZoneRectInArena();
+  const insideSafeZone =
+    civ.x > zone.x &&
+    civ.x < zone.x + zone.width &&
+    civ.y > zone.y &&
+    civ.y < zone.y + zone.height;
+
+  if (insideSafeZone) {
+    civ.saved = true;
+    civ.dragging = false;
+    civ.node.classList.remove('dragging');
+    civ.node.classList.add('saving');
+    setTimeout(() => {
+      civ.node.classList.add('dead');
+      setTimeout(() => civ.node.remove(), 180);
+    }, 120);
+
+    state.game.savedCount++;
+    state.game.draggedCivilian = null;
+    line.style.display = 'none';
+
+    flashNotice(`${civ.name} saved`);
+    updateHUD();
+    checkWin();
+  }
+}
+
+function cancelHookDrag() {
+  if (!state.game) return;
+  if (state.game.draggedCivilian) {
+    state.game.draggedCivilian.dragging = false;
+    state.game.draggedCivilian.node.classList.remove('dragging');
+  }
+  state.game.draggedCivilian = null;
+  if (state.game.hookLine) {
+    state.game.hookLine.style.display = 'none';
+  }
+}
+
+function handleArenaAction(ev) {
+  if (!state.game || !state.game.running) return;
+  if (state.game.playerDragging) return;
+
+  updatePointerFromEvent(ev);
+
+  const item = getCurrentItem();
+  if (!item) return;
+
+  if (item.type === 'ammo') {
+    useAmmo(item);
+    return;
+  }
+
+  if (item.type === 'vest') {
+    useVestItem(item);
+    return;
+  }
+
+  if (item.mode === 'hook') {
+    startHookDrag(ev.clientX, ev.clientY);
+    return;
+  }
+
+  if (item.mode === 'knife') {
+    knifeAttack();
+    return;
+  }
+
+  if (item.mode === 'bomb') {
+    bombAttack();
+    return;
+  }
+
+  shootGun();
+}
+
+function maybeEnemyShoot(dt) {
+  if (!state.game || state.game.level < 4) return;
+
+  state.game.enemyCooldown -= dt;
+  if (state.game.enemyCooldown > 0) return;
+
+  const shooters = state.game.enemies.filter(e => e.alive);
+  if (!shooters.length) return;
+
+  const shooter = shooters[Math.floor(Math.random() * shooters.length)];
+
+  const bullet = document.createElement('div');
+  bullet.className = 'enemy-bullet';
+  bullet.style.left = shooter.x + 'px';
+  bullet.style.top = shooter.y + 'px';
+  el.arena.appendChild(bullet);
+
+  let tx = state.game.playerX;
+  let ty = state.game.playerY;
+
+  if (shooter.special && state.game.civilians.some(c => c.alive && !c.saved) && Math.random() < 0.55) {
+    const civs = state.game.civilians.filter(c => c.alive && !c.saved);
+    const civ = civs[Math.floor(Math.random() * civs.length)];
+    tx = civ.x;
+    ty = civ.y;
+  }
+
+  const dx = tx - shooter.x;
+  const dy = ty - shooter.y;
+  const len = Math.hypot(dx, dy) || 1;
+
+  state.game.enemyBullets.push({
+    x: shooter.x,
+    y: shooter.y,
+    vx: (dx / len) * 320,
+    vy: (dy / len) * 320,
+    node: bullet
+  });
+
+  state.game.enemyCooldown = rand(0.75, 1.18);
+}
+
+function moveEnemyBullets(dt) {
+  state.game.enemyBullets = state.game.enemyBullets.filter(b => {
+    b.x += b.vx * dt;
+    b.y += b.vy * dt;
+    b.node.style.left = b.x + 'px';
+    b.node.style.top = b.y + 'px';
+
+    if (dist(b.x, b.y, state.game.playerX, state.game.playerY) < 24) {
+      b.node.remove();
+      playerHit();
+      return false;
+    }
+
+    for (const civ of state.game.civilians) {
+      if (!civ.alive || civ.saved) continue;
+      if (dist(b.x, b.y, civ.x, civ.y) < 22) {
+        civ.alive = false;
+        civ.dragging = false;
+        civ.node.classList.add('dead');
+        setTimeout(() => civ.node.remove(), 180);
+        b.node.remove();
+        endMission(false, `${civ.name} was shot`);
+        return false;
+      }
+    }
+
+    const rect = getArenaRect();
+    if (b.x < -30 || b.x > rect.width + 30 || b.y < -30 || b.y > rect.height + 30) {
+      b.node.remove();
+      return false;
+    }
+
+    return true;
+  });
+}
+
+function moveEnemies(dt) {
+  const rect = getArenaRect();
+
+  state.game.enemies.forEach(enemy => {
+    if (!enemy.alive) return;
+
+    enemy.x += enemy.vx * dt;
+    enemy.y += enemy.vy * dt;
+
+    const minX = 42;
+    const maxX = rect.width - 42;
+    const minY = 54;
+    const maxY = rect.height - 112;
+
+    if (enemy.x <= minX || enemy.x >= maxX) enemy.vx *= -1;
+    if (enemy.y <= minY || enemy.y >= maxY) enemy.vy *= -1;
+
+    enemy.x = clamp(enemy.x, minX, maxX);
+    enemy.y = clamp(enemy.y, minY, maxY);
+
+    enemy.node.style.left = enemy.x + 'px';
+    enemy.node.style.top = enemy.y + 'px';
+  });
+}
+
+function movePlayerTowardTarget(dt) {
+  if (!state.game || !state.game.canMove) return;
+
+  const dx = state.game.playerTargetX - state.game.playerX;
+  const dy = state.game.playerTargetY - state.game.playerY;
+  const distToTarget = Math.hypot(dx, dy);
+
+  if (distToTarget < 1) return;
+
+  const speed = 280;
+  const step = Math.min(distToTarget, speed * dt);
+
+  state.game.playerX += (dx / distToTarget) * step;
+  state.game.playerY += (dy / distToTarget) * step;
+
+  positionPlayer();
+  positionWheel();
+  positionCrosshair();
+}
+
+function checkWin() {
+  if (!state.game) return;
+
+  const allDead = state.game.kills >= state.game.enemyTarget;
+  const allSaved = state.game.level < 4 || state.game.savedCount >= state.game.targetSaved;
+
+  if (allDead && allSaved) {
+    endMission(true, 'Mission cleared');
+  }
+}
+
+function unlockNextMission(level) {
+  const next = MISSIONS.find(m => m.level === level + 1);
+  if (next) next.unlocked = true;
+}
+
+function showOverlay({ title, text, primaryText = 'Continue', secondaryText = 'Back', onPrimary, onSecondary, hideSecondary = false }) {
+  const overlay = document.getElementById('overlay');
+  const primary = document.getElementById('overlayPrimary');
+  const secondary = document.getElementById('overlaySecondary');
+
+  document.getElementById('overlayTitle').textContent = title;
+  document.getElementById('overlayText').innerHTML = text;
+  primary.textContent = primaryText;
+  secondary.textContent = secondaryText;
+  secondary.style.display = hideSecondary ? 'none' : 'inline-flex';
+
+  overlay.classList.add('active');
+
+  primary.onclick = () => {
+    overlay.classList.remove('active');
+    if (onPrimary) onPrimary();
+  };
+
+  secondary.onclick = () => {
+    overlay.classList.remove('active');
+    if (onSecondary) onSecondary();
+  };
+}
+
+function endMission(won, reason) {
+  if (!state.game) return;
+
+  state.game.running = false;
+  cancelAnimationFrame(state.game.raf);
+
+  if (won) {
+    unlockNextMission(state.game.level);
+    showOverlay({
+      title: 'You Win',
+      text: `${reason}<br>You now have <strong>${state.points}</strong> points.`,
+      primaryText: 'Back To Menu',
+      secondaryText: 'Open Store',
+      onPrimary: () => {
+        state.game = null;
+        clearArena();
+        renderMissionCards();
+        renderStore();
+        switchView('selectView');
+      },
+      onSecondary: () => {
+        state.game = null;
+        clearArena();
+        renderStore();
+        switchView('storeView');
+      }
+    });
+  } else {
+    showOverlay({
+      title: 'You Lose',
+      text: `${reason}<br>Try again or buy better gear.`,
+      primaryText: 'Retry',
+      secondaryText: 'Menu',
+      onPrimary: () => {
+        clearArena();
+        startMission();
+      },
+      onSecondary: () => {
+        state.game = null;
+        clearArena();
+        renderMissionCards();
+        renderStore();
+        switchView('selectView');
+      }
+    });
+  }
+}
+function step(ts) {
+  if (!state.game || !state.game.running) return;
+
+  const dt = Math.min(0.03, ((ts - state.game.lastTs) || 16) / 1000);
+  state.game.lastTs = ts;
+
+  state.game.timeLeft -= dt;
+  if (state.game.timeLeft <= 0) {
+    endMission(false, 'Time is up');
+    return;
+  }
+
+  movePlayerTowardTarget(dt);
+  moveEnemies(dt);
+  maybeEnemyShoot(dt);
+  moveEnemyBullets(dt);
+  updateHookDrag();
+  updateHUD();
+  positionCrosshair();
+  positionPlayer();
+  positionWheel();
+
+  state.game.raf = requestAnimationFrame(step);
+}
+
+function startMission() {
+  clearArena();
+
+  const mission = getMission();
+  const cfg = LEVELS[mission.level];
+
+  ensureHookVisibleForLevel(mission.level);
+
+  switchView('gameView');
+
+  requestAnimationFrame(() => {
+    const rect = getArenaRect();
+
+    const hookLine = document.createElement('div');
+    hookLine.className = 'hook-line';
+    hookLine.style.display = 'none';
+    el.arena.appendChild(hookLine);
+
+    state.game = {
+      running: true,
+      level: mission.level,
+      kills: 0,
+      enemyTarget: cfg.enemyCount,
+      bullets: cfg.bullets,
+      lives: cfg.lives,
+      timeLeft: cfg.timer,
+      misses: 0,
+      missLimit: cfg.missLimit,
       enemies: [],
       civilians: [],
-      clues: [],
-      allies: [],
-      particles: [],
-      floatingTexts: [],
-      buildings: [],
-      boss: null,
-      stageTimer: 0,
-      enemiesCleared: 0,
-      cluesCollected: 0,
-      messageMode: "next",
-      lastTime: 0,
-      pendingStartLevel: 0,
-      aimX: 0,
-      aimY: 0
+      enemyBullets: [],
+      savedCount: 0,
+      targetSaved: mission.level === 4 ? 1 : mission.level === 5 ? 2 : 0,
+      enemyCooldown: 1,
+      pointer: { x: rect.width * 0.72, y: rect.height * 0.34 },
+      playerX: rect.width / 2,
+      playerY: rect.height - 58,
+      playerTargetX: rect.width / 2,
+      playerTargetY: rect.height - 58,
+      canMove: cfg.movePlayer,
+      playerDragging: false,
+      draggedCivilian: null,
+      hookLine,
+      wheelDragging: false,
+      wheelStartAngle: 0,
+      wheelStartIndex: 0,
+      lastTs: performance.now(),
+      raf: null
     };
 
-    const player = {
-      x: 0,
-      y: 0,
-      w: 92,
-      h: 112,
-      speed: 340,
-      ammo: 8,
-      maxAmmo: 8,
-      health: 100,
-      fireCooldown: 0,
-      invuln: 0,
-      facing: 1,
-      recoil: 0
-    };
+    state.inventory.vest = false;
 
-    function resize() {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const rect = gameWrap.getBoundingClientRect();
-      canvas.width = Math.floor(rect.width * dpr);
-      canvas.height = Math.floor(rect.height * dpr);
-      canvas.style.width = rect.width + "px";
-      canvas.style.height = rect.height + "px";
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    el.safeZone.classList.toggle('show', mission.level >= 4);
+    document.getElementById('arenaBgImg').src = `images/games/game1/bg/${mission.level}.jpg`;
+    document.getElementById('playerImg').src = `images/games/game1/level/${mission.level}.png`;
 
-      if (!player.x) resetPlayerPosition();
-      buildScenery();
-
-      if (!state.aimX) {
-        state.aimX = rect.width * 0.72;
-        state.aimY = rect.height * 0.42;
-      } else {
-        state.aimX = clamp(state.aimX, 12, rect.width - 12);
-        state.aimY = clamp(state.aimY, 24, rect.height - 24);
-      }
-    }
-    window.addEventListener("resize", resize);
-
-    function resetPlayerPosition() {
-      const w = canvas.clientWidth || 320;
-      const h = canvas.clientHeight || 568;
-      player.x = w * 0.10;
-      player.y = h - 145;
+    if (!getItem(state.equipped) || !itemAllowedForMission(getItem(state.equipped), mission.level)) {
+      state.equipped = mission.level >= 4 && getItem('hook').quantity > 0 ? 'hook' : 'gun1';
     }
 
-    function buildScenery() {
-      const w = canvas.clientWidth || 320;
-      state.buildings = [];
-      const count = Math.max(5, Math.floor(w / 90));
-      for (let i = 0; i < count; i++) {
-        state.buildings.push({
-          x: i * (w / count),
-          w: w / count + 8,
-          h: 70 + Math.random() * 150,
-          shade: 0.12 + Math.random() * 0.09
-        });
-      }
+    spawnEnemies(state.game);
+    spawnCivilians(state.game);
+    positionPlayer();
+    positionCrosshair();
+    renderWheel();
+    updateHUD();
+    flashNotice(`Mission ${mission.level} start`);
+
+    state.game.raf = requestAnimationFrame(step);
+  });
+}
+
+function setupWheelInteraction() {
+  const wheel = el.radialWheel;
+
+  wheel.addEventListener('pointerdown', ev => {
+    if (!state.game) return;
+    ev.stopPropagation();
+
+    const items = getOwnedItems();
+    if (!items.length) return;
+
+    const rect = wheel.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    state.game.wheelDragging = true;
+    state.game.wheelStartAngle = Math.atan2(ev.clientY - cy, ev.clientX - cx);
+    state.game.wheelStartIndex = Math.max(0, items.findIndex(i => i.id === state.equipped));
+    wheel.setPointerCapture?.(ev.pointerId);
+  });
+
+  wheel.addEventListener('pointermove', ev => {
+    if (!state.game || !state.game.wheelDragging) return;
+    ev.stopPropagation();
+
+    const items = getOwnedItems();
+    if (!items.length) return;
+
+    const rect = wheel.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    const current = Math.atan2(ev.clientY - cy, ev.clientX - cx);
+    const diff = current - state.game.wheelStartAngle;
+    const stepAngle = (Math.PI * 2) / items.length;
+    const steps = Math.round(diff / stepAngle);
+    let index = state.game.wheelStartIndex + steps;
+
+    while (index < 0) index += items.length;
+    while (index >= items.length) index -= items.length;
+
+    const candidate = items[index];
+    const disableConsumable =
+      (candidate.type === 'hook' || candidate.type === 'ammo' || candidate.type === 'vest' || candidate.mode === 'bomb') &&
+      candidate.quantity <= 0;
+
+    if (!disableConsumable) {
+      state.equipped = candidate.id;
+      renderWheel();
+      updateHUD();
     }
+  });
 
-    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
-    function rand(min, max) { return Math.random() * (max - min) + min; }
+  const endDrag = ev => {
+    if (!state.game) return;
+    state.game.wheelDragging = false;
+    wheel.releasePointerCapture?.(ev.pointerId);
+  };
 
-    function radio(label, text) {
-      ui.radioLabel.textContent = label;
-      ui.radioText.textContent = text;
-      ui.radioBox.classList.add("show");
-      clearTimeout(radio._t);
-      radio._t = setTimeout(() => ui.radioBox.classList.remove("show"), 2600);
-    }
+  wheel.addEventListener('pointerup', endDrag);
+  wheel.addEventListener('pointercancel', endDrag);
+}
 
-    function queueLevelIntro(index) {
-      const level = levels[index];
-      state.pendingStartLevel = index;
-      ui.introLevel.textContent = `Level ${level.id}`;
-      ui.introTitle.textContent = level.shortName;
-      ui.introSub.textContent = level.desc;
-      ui.levelIntro.classList.remove("hidden");
-      ui.levelIntro.classList.add("show");
-    }
+function setupPlayerMovement() {
+  const player = el.player;
 
-    function hideLevelIntro() {
-      ui.levelIntro.classList.add("hidden");
-      ui.levelIntro.classList.remove("show");
-    }
+  player.addEventListener('pointerdown', ev => {
+    if (!state.game || !state.game.canMove) return;
+    ev.stopPropagation();
+    state.game.playerDragging = true;
+    player.setPointerCapture?.(ev.pointerId);
 
-    function resetTransient() {
-      state.bullets = [];
-      state.enemies = [];
-      state.civilians = [];
-      state.clues = [];
-      state.allies = [];
-      state.particles = [];
-      state.floatingTexts = [];
-      state.boss = null;
-      state.enemiesCleared = 0;
-      state.cluesCollected = 0;
-      player.ammo = player.maxAmmo;
-      player.health = 100;
-      player.fireCooldown = 0;
-      player.invuln = 0;
-      player.recoil = 0;
-      resetPlayerPosition();
-    }
+    const rect = getArenaRect();
+    state.game.playerTargetX = clamp(ev.clientX - rect.left, 44, rect.width - 44);
+    state.game.playerTargetY = clamp(ev.clientY - rect.top, rect.height - 112, rect.height - 48);
+  });
 
-    function startLevel(index) {
-      state.levelIndex = index;
-      state.paused = false;
-      state.gameOver = false;
-      state.running = true;
-      resetTransient();
-      ui.reunionScene.classList.add("hidden");
+  player.addEventListener('pointermove', ev => {
+    if (!state.game || !state.game.canMove || !state.game.playerDragging) return;
+    ev.stopPropagation();
 
-      const level = levels[state.levelIndex];
-      state.stageTimer = level.time;
-      spawnLevelEntities(level);
-      updateUI();
-      hideMessage();
-      ui.startOverlay.classList.add("hidden");
-      ui.howOverlay.classList.add("hidden");
-      hideLevelIntro();
-      radio(level.targetRescue === "Eya" ? "Mission Radio" : level.targetRescue === "Kian" ? "Tracking Channel" : "Final Channel", level.radio);
-    }
+    const rect = getArenaRect();
+    state.game.playerTargetX = clamp(ev.clientX - rect.left, 44, rect.width - 44);
+    state.game.playerTargetY = clamp(ev.clientY - rect.top, rect.height - 112, rect.height - 48);
+  });
 
-    function randomCivilianImage() {
-      const keys = ["civilian1", "civilian2", "civilian3", "civilian4"];
-      return keys[Math.floor(Math.random() * keys.length)];
-    }
+  const stopPlayerDrag = ev => {
+    if (!state.game) return;
+    state.game.playerDragging = false;
+    player.releasePointerCapture?.(ev.pointerId);
+  };
 
-    function spawnLevelEntities(level) {
-      for (let i = 0; i < level.civilianCount; i++) spawnCivilian(false);
-      for (let i = 0; i < level.dangerCivilianCount; i++) spawnCivilian(true);
-      for (let i = 0; i < level.clueGoal; i++) spawnClue(i);
+  player.addEventListener('pointerup', stopPlayerDrag);
+  player.addEventListener('pointercancel', stopPlayerDrag);
+}
 
-      if (!level.boss) {
-        for (let i = 0; i < Math.min(level.enemyGoal, 3); i++) spawnEnemy();
-      } else {
-        spawnBoss();
-      }
-    }
+function bindEvents() {
+  document.getElementById('goHubBtn').onclick = () => {
+    window.location.href = '5thpage.html';
+  };
 
-    function spawnCivilian(inDanger) {
-      const w = canvas.clientWidth || 320;
-      const h = canvas.clientHeight || 568;
-      const groundY = h - 126;
-      state.civilians.push({
-        x: rand(w * 0.34, w * 0.90),
-        y: groundY + rand(-8, 5),
-        w: 60,
-        h: 92,
-        dir: Math.random() > 0.5 ? 1 : -1,
-        speed: rand(18, 40),
-        wiggle: Math.random() * Math.PI * 2,
-        inDanger,
-        rescued: false,
-        imageKey: randomCivilianImage(),
-        hp: inDanger ? 1 : 999
-      });
-    }
+  document.getElementById('openStoreBtn').onclick = () => {
+    renderStore();
+    switchView('storeView');
+  };
 
-    function spawnClue(i = 0) {
-      const w = canvas.clientWidth || 320;
-      const h = canvas.clientHeight || 568;
-      const zones = [0.38, 0.57, 0.75, 0.88];
-      const baseX = zones[i % zones.length] * w;
-      state.clues.push({
-        x: clamp(baseX + rand(-48, 48), 80, w - 60),
-        y: h - 120 - rand(24, 70),
-        r: 14,
-        collected: false,
-        pulse: Math.random() * Math.PI * 2
-      });
-    }
+  document.getElementById('backFromStoreTopBtn').onclick = () => {
+    switchView('selectView');
+    renderMissionCards();
+  };
 
-    function spawnEnemy() {
-      const level = levels[state.levelIndex];
-      const w = canvas.clientWidth || 320;
-      const h = canvas.clientHeight || 568;
-      if (state.enemies.length + state.enemiesCleared >= level.enemyGoal) return;
-      const groundY = h - 132;
-      state.enemies.push({
-        x: w + rand(30, 140),
-        y: groundY,
-        w: 72,
-        h: 98,
-        hp: level.id === 1 ? 2 : 3,
-        maxHp: level.id === 1 ? 2 : 3,
-        speed: rand(level.enemySpeed[0], level.enemySpeed[1]),
-        shootCd: rand(1.1, 2.1),
-        imageKey: level.criminalImage,
-        type: "criminal",
-        dodgeCd: rand(0.6, 1.2),
-        dodgeBoost: 0
-      });
-    }
+  document.getElementById('storeRefreshBtn').onclick = () => {
+    renderStore();
+    flashNotice('Store refreshed');
+  };
 
-    function spawnBoss() {
-      const w = canvas.clientWidth || 320;
-      const h = canvas.clientHeight || 568;
-      const groundY = h - 142;
-      state.boss = {
-        x: w * 0.70,
-        y: groundY - 10,
-        w: 132,
-        h: 160,
-        hp: 14,
-        maxHp: 14,
-        speed: 90,
-        dir: -1,
-        shootCd: 1.0,
-        imageKey: "finalboss"
-      };
-    }
+  document.getElementById('startLevelBtn').onclick = () => {
+    startMission();
+  };
 
-    function unlockAlly() {
-      if (state.alliesUnlocked >= 2) return;
-      state.alliesUnlocked++;
-      const allyKey = state.alliesUnlocked === 1 ? "ally1" : "ally2";
-      const h = canvas.clientHeight || 568;
-      state.allies.push({
-        x: player.x - 20 - (state.alliesUnlocked * 12),
-        y: h - 144,
-        w: 68,
-        h: 96,
-        fireCd: rand(0.5, 1.0),
-        imageKey: allyKey
-      });
-      radio("Ally Joined", `Kio gained ${state.alliesUnlocked === 1 ? "the first" : "the second"} ally for helping a civilian.`);
-      floatingText(player.x + 40, player.y - 16, "ALLY JOINED", "#7dffbc");
-      updateUI();
-    }
+  document.getElementById('buySelectedBtn').onclick = buySelected;
+  document.getElementById('equipSelectedBtn').onclick = equipSelected;
 
-    function updateUI() {
-      const level = levels[state.levelIndex];
-      ui.missionTitle.textContent = level.name;
-      ui.missionDesc.textContent = level.desc;
-      ui.healthChip.textContent = `Health ${Math.max(0, Math.ceil(player.health))}`;
-      ui.ammoChip.textContent = `Ammo ${player.ammo}`;
-      ui.scoreChip.textContent = `Score ${state.score}`;
-      ui.civChip.textContent = `Civilians Hurt ${state.civiliansHit}`;
-      ui.clueChip.textContent = `Clues ${state.cluesCollected} / ${level.clueGoal}`;
-      ui.enemyChip.textContent = level.boss && state.boss ? `Boss HP ${state.boss.hp}` : `Enemies ${state.enemiesCleared} / ${level.enemyGoal}`;
-      ui.rescueChip.textContent = `Rescue: ${level.targetRescue}`;
-      ui.allyPill.textContent = `Allies ${state.alliesUnlocked} / 2`;
-      ui.aimPill.textContent = player.fireCooldown > 0 ? "Cooldown" : "Aim ready";
-      const m = Math.floor(state.stageTimer / 60).toString().padStart(2, "0");
-      const s = Math.floor(state.stageTimer % 60).toString().padStart(2, "0");
-      ui.timerText.textContent = `${m}:${s}`;
+  document.getElementById('buyBtn').onclick = () => {
+    renderStore();
+    switchView('storeView');
+  };
 
-      ui.objectiveChips.innerHTML = "";
-      [
-        `Collect ${level.clueGoal} clues`,
-        level.boss ? "Defeat the boss" : `Defeat ${level.enemyGoal} criminals`,
-        level.id === 3 ? "Protect the family mission" : "Save endangered civilian",
-        level.id === 1 ? "Bring Eya home" : level.id === 2 ? "Bring Kian home" : "Complete reunion"
-      ].forEach((text, idx) => {
-        const span = document.createElement("span");
-        span.className = "chip " + (idx === 0 ? "pink" : idx === 2 ? "warn" : idx === 3 ? "good" : "");
-        span.textContent = text;
-        ui.objectiveChips.appendChild(span);
-      });
-    }
-
-    function getGunOrigin() {
-      const recoilBack = player.recoil * 8;
-      return {
-        x: player.x + player.w * 0.78 - recoilBack,
-        y: player.y + 46
-      };
-    }
-
-    function fireBullet() {
-      if (!state.running || state.paused || player.fireCooldown > 0 || player.ammo <= 0) return;
-
-      const gun = getGunOrigin();
-      const dx = state.aimX - gun.x;
-      const dy = state.aimY - gun.y;
-      const len = Math.max(1, Math.hypot(dx, dy));
-      const speed = 760;
-
-      player.ammo--;
-      player.fireCooldown = 0.22;
-      player.recoil = 1;
-      state.shotsFired++;
-
-      state.bullets.push({
-        x: gun.x,
-        y: gun.y,
-        r: 5,
-        vx: (dx / len) * speed,
-        vy: (dy / len) * speed,
-        friendly: true
-      });
-
-      spawnMuzzle(gun.x, gun.y);
-      updateUI();
-    }
-
-    function enemyFire(enemy, fromBoss = false) {
-      const targetX = player.x + player.w * 0.5;
-      const targetY = player.y + 48;
-      const originX = enemy.x + enemy.w * 0.18;
-      const originY = enemy.y + enemy.h * 0.42;
-      const dx = targetX - originX;
-      const dy = targetY - originY;
-      const len = Math.max(1, Math.hypot(dx, dy));
-      const speed = fromBoss ? 430 : 320;
-
-      state.bullets.push({
-        x: originX,
-        y: originY,
-        r: fromBoss ? 7 : 4.5,
-        vx: (dx / len) * speed,
-        vy: (dy / len) * speed,
-        friendly: false,
-        damage: fromBoss ? 14 : 8
-      });
-    }
-
-    function allyFire(ally, target) {
-      const ox = ally.x + ally.w * 0.82;
-      const oy = ally.y + ally.h * 0.42;
-      const tx = target.x + target.w * 0.5;
-      const ty = target.y + target.h * 0.4;
-      const dx = tx - ox;
-      const dy = ty - oy;
-      const len = Math.max(1, Math.hypot(dx, dy));
-      const speed = 650;
-
-      state.bullets.push({
-        x: ox,
-        y: oy,
-        r: 4,
-        vx: (dx / len) * speed,
-        vy: (dy / len) * speed,
-        friendly: true,
-        allyShot: true
-      });
-    }
-
-    function reloadAmmo() {
-      if (!state.running || state.paused) return;
-      player.ammo = player.maxAmmo;
-      floatingText(player.x + 30, player.y - 14, "Reload!", "#ffd166");
-      updateUI();
-    }
-
-    function hitPlayer(amount) {
-      if (player.invuln > 0) return;
-      player.health -= amount;
-      player.invuln = 0.7;
-      shake(8);
-      floatingText(player.x + 20, player.y - 10, `-${amount}`, "#ff8fa8");
-      burst(player.x + player.w / 2, player.y + player.h / 3, "#ff6c8f", 12);
-      if (player.health <= 0) {
-        player.health = 0;
-        finishLevel(false, "Kio fell in action before bringing them home.");
-      }
-      updateUI();
-    }
-
-    function finishLevel(success, message) {
-      state.running = false;
-      state.gameOver = true;
-      const acc = state.shotsFired ? Math.round((state.shotsHit / state.shotsFired) * 100) : 0;
-      ui.messageTitle.textContent = success ? (state.levelIndex === 2 ? "Mission Complete!" : "Stage Cleared!") : "Mission Failed";
-      ui.messageText.textContent = message;
-      ui.statScore.textContent = state.score;
-      ui.statAcc.textContent = acc + "%";
-      ui.statClues.textContent = state.cluesCollected;
-      ui.statCivs.textContent = state.civiliansHit;
-      ui.nextBtn.textContent = success ? (state.levelIndex === levels.length - 1 ? "Play Again" : "Next Level") : "Retry";
-      state.messageMode = success ? "next" : "retry";
-      ui.messageOverlay.classList.remove("hidden");
-
-      if (success && state.levelIndex === 2) {
-        ui.reunionScene.classList.remove("hidden");
-      } else {
-        ui.reunionScene.classList.add("hidden");
-      }
-    }
-
-    function hideMessage() {
-      ui.messageOverlay.classList.add("hidden");
-    }
-
-    function collectClue(clue) {
-      if (clue.collected) return;
-      clue.collected = true;
-      state.cluesCollected++;
-      state.score += 75;
-      floatingText(clue.x, clue.y - 18, "+Clue", "#7dffbc");
-      burst(clue.x, clue.y, "#7dffbc", 12);
-      radio("Evidence", "A clue has been secured. Keep moving.");
-      updateUI();
-    }
-
-    function killEnemy(enemy, points = 120) {
-      const idx = state.enemies.indexOf(enemy);
-      if (idx >= 0) state.enemies.splice(idx, 1);
-      state.enemiesCleared++;
-      state.score += points;
-      if (!enemy._countedHit) state.shotsHit++;
-      burst(enemy.x + enemy.w / 2, enemy.y + enemy.h / 2, "#7ec8ff", 18);
-      floatingText(enemy.x + 10, enemy.y - 8, `+${points}`, "#7ec8ff");
-      const level = levels[state.levelIndex];
-      if (!level.boss && state.enemiesCleared < level.enemyGoal) spawnEnemy();
-      updateUI();
-    }
-
-    function damageBoss() {
-      if (!state.boss) return;
-      state.boss.hp--;
-      state.shotsHit++;
-      state.score += 90;
-      burst(state.boss.x + state.boss.w / 2, state.boss.y + state.boss.h / 2, "#ffd166", 14);
-      floatingText(state.boss.x + 30, state.boss.y - 8, "-1", "#ffd166");
-      if (state.boss.hp <= 0) {
-        burst(state.boss.x + state.boss.w / 2, state.boss.y + state.boss.h / 2, "#ff6c8f", 28);
-        radio("Final Channel", "Boss neutralized. The room is clear.");
-        state.boss = null;
-      }
-      updateUI();
-    }
-
-    function floatingText(x, y, text, color) {
-      state.floatingTexts.push({ x, y, text, color, life: 1 });
-    }
-
-    function burst(x, y, color, count) {
-      for (let i = 0; i < count; i++) {
-        state.particles.push({
-          x, y,
-          vx: rand(-140, 140),
-          vy: rand(-160, 60),
-          life: rand(0.35, 0.8),
-          size: rand(2, 5),
-          color
-        });
-      }
-    }
-
-    let shakeTime = 0, shakePower = 0;
-    function shake(power) {
-      shakeTime = 0.22;
-      shakePower = power;
-    }
-
-    function rectHit(px, py, obj) {
-      return px > obj.x && px < obj.x + obj.w && py > obj.y && py < obj.y + obj.h;
-    }
-
-    function maybeDodgeEnemy(enemy, bullet) {
-      if (enemy.dodgeCd > 0) return;
-      if (!bullet.friendly) return;
-      if (bullet.x < enemy.x - 80 || bullet.x > enemy.x + enemy.w + 20) return;
-      if (Math.abs(bullet.y - (enemy.y + enemy.h * 0.5)) > 26) return;
-      enemy.dodgeBoost = (Math.random() > 0.5 ? 1 : -1) * rand(80, 140);
-      enemy.dodgeCd = rand(0.8, 1.4);
-    }
-
-    function update(dt) {
-      if (!state.running || state.paused) return;
-      const level = levels[state.levelIndex];
-
-      state.stageTimer -= dt;
-      if (state.stageTimer <= 0) {
-        state.stageTimer = 0;
-        finishLevel(false, "Time ran out before the rescue was completed.");
-        return;
-      }
-
-      if (player.fireCooldown > 0) player.fireCooldown -= dt;
-      if (player.invuln > 0) player.invuln -= dt;
-      if (player.recoil > 0) player.recoil = Math.max(0, player.recoil - dt * 6);
-      if (shakeTime > 0) shakeTime -= dt;
-
-      const move = (state.keys.left ? -1 : 0) + (state.keys.right ? 1 : 0);
-      player.x += move * player.speed * dt;
-      if (move !== 0) player.facing = move > 0 ? 1 : -1;
-      const maxX = (canvas.clientWidth || 320) - player.w - 12;
-      player.x = clamp(player.x, 12, maxX);
-
-      state.bullets.forEach(b => {
-        b.x += b.vx * dt;
-        b.y += b.vy * dt;
-      });
-
-      const cw = canvas.clientWidth || 320;
-      const ch = canvas.clientHeight || 568;
-      state.bullets = state.bullets.filter(b => b.x > -40 && b.x < cw + 40 && b.y > -40 && b.y < ch + 40);
-
-      for (const bullet of state.bullets) {
-        for (const enemy of state.enemies) maybeDodgeEnemy(enemy, bullet);
-      }
-
-      state.enemies.forEach(enemy => {
-        enemy.dodgeCd = Math.max(0, enemy.dodgeCd - dt);
-        if (enemy.dodgeBoost !== 0) {
-          enemy.x += enemy.dodgeBoost * dt;
-          enemy.dodgeBoost *= 0.86;
-          if (Math.abs(enemy.dodgeBoost) < 8) enemy.dodgeBoost = 0;
-        }
-
-        enemy.x -= enemy.speed * dt;
-        if (enemy.x < cw * 0.46) enemy.speed *= -1;
-        if (enemy.x > cw - 78) enemy.speed *= -1;
-        enemy.shootCd -= dt;
-        if (enemy.shootCd <= 0) {
-          enemyFire(enemy, false);
-          enemy.shootCd = rand(1.2, 2.4);
+  document.getElementById('backToMenuBtn').onclick = () => {
+    if (state.game?.running) {
+      showOverlay({
+        title: 'Leave mission?',
+        text: 'Your current run will end if you go back to the menu.',
+        primaryText: 'Leave',
+        secondaryText: 'Stay',
+        onPrimary: () => {
+          cancelAnimationFrame(state.game?.raf);
+          state.game = null;
+          clearArena();
+          switchView('selectView');
+          renderMissionCards();
         }
       });
-
-      state.civilians.forEach(civ => {
-        civ.wiggle += dt * 2;
-        if (!civ.inDanger || civ.rescued) {
-          civ.x += civ.dir * civ.speed * dt;
-          if (civ.x < cw * 0.26 || civ.x > cw - 30) civ.dir *= -1;
-        }
-      });
-
-      state.allies.forEach((ally, idx) => {
-        const targetX = player.x - 56 - idx * 34;
-        ally.x += (targetX - ally.x) * 0.08;
-        ally.y += ((player.y + 6) - ally.y) * 0.08;
-        ally.fireCd -= dt;
-
-        let target = null;
-        const endangered = state.civilians.find(c => c.inDanger && !c.rescued);
-
-        if (endangered && state.enemies.length) {
-          target = state.enemies.reduce((best, e) => {
-            const bd = best ? Math.hypot(best.x - endangered.x, best.y - endangered.y) : Infinity;
-            const ed = Math.hypot(e.x - endangered.x, e.y - endangered.y);
-            return ed < bd ? e : best;
-          }, null);
-        }
-        if (!target && state.enemies.length) {
-          target = state.enemies.reduce((a,b)=> (a.x < b.x ? a : b));
-        }
-        if (!target && state.boss) target = state.boss;
-
-        if (target && ally.fireCd <= 0) {
-          allyFire(ally, target);
-          ally.fireCd = rand(0.7, 1.15);
-        }
-      });
-
-      state.clues.forEach(c => c.pulse += dt * 4);
-
-      if (state.boss) {
-        state.boss.x += state.boss.dir * state.boss.speed * dt;
-        if (state.boss.x < cw * 0.55 || state.boss.x > cw - state.boss.w - 18) state.boss.dir *= -1;
-        state.boss.shootCd -= dt;
-        if (state.boss.shootCd <= 0) {
-          enemyFire(state.boss, true);
-          state.boss.shootCd = 0.95;
-        }
-      }
-
-      for (const civ of state.civilians) {
-        if (civ.inDanger && !civ.rescued) {
-          const dx = (player.x + player.w/2) - (civ.x + civ.w/2);
-          const dy = (player.y + 42) - (civ.y + 30);
-          if (Math.hypot(dx, dy) < 56) {
-            civ.rescued = true;
-            civ.inDanger = false;
-            state.score += 110;
-            floatingText(civ.x + 20, civ.y - 12, "CIVILIAN SAVED", "#7dffbc");
-            burst(civ.x + civ.w / 2, civ.y + civ.h / 2, "#7dffbc", 16);
-            unlockAlly();
-          }
-        }
-      }
-
-      for (const clue of state.clues) {
-        if (!clue.collected) {
-          const dx = (player.x + player.w / 2) - clue.x;
-          const dy = (player.y + 50) - clue.y;
-          if (Math.hypot(dx, dy) < 40) collectClue(clue);
-        }
-      }
-
-      for (const bullet of [...state.bullets]) {
-        if (bullet.friendly) {
-          let hitSomething = false;
-
-          for (const enemy of [...state.enemies]) {
-            if (rectHit(bullet.x, bullet.y, enemy)) {
-              enemy.hp--;
-              state.bullets.splice(state.bullets.indexOf(bullet), 1);
-              hitSomething = true;
-              if (bullet.allyShot) enemy._countedHit = true;
-              if (enemy.hp <= 0) killEnemy(enemy, bullet.allyShot ? 90 : 120);
-              else {
-                if (!bullet.allyShot) state.shotsHit++;
-                burst(bullet.x, bullet.y, "#7ec8ff", 8);
-              }
-              break;
-            }
-          }
-          if (hitSomething) continue;
-
-          if (state.boss && rectHit(bullet.x, bullet.y, state.boss)) {
-            state.bullets.splice(state.bullets.indexOf(bullet), 1);
-            damageBoss();
-            continue;
-          }
-
-          for (const civ of state.civilians) {
-            if (rectHit(bullet.x, bullet.y, civ)) {
-              state.bullets.splice(state.bullets.indexOf(bullet), 1);
-
-              if (civ.inDanger && !civ.rescued) {
-                civ.hp--;
-                burst(civ.x + civ.w/2, civ.y + civ.h/2, "#ff6c8f", 8);
-                if (civ.hp <= 0) {
-                  state.civiliansHit++;
-                  state.score = Math.max(0, state.score - 150);
-                  floatingText(civ.x, civ.y - 10, "Civilian Lost!", "#ff9eb3");
-                  radio("Warning", "You failed to protect the endangered civilian.");
-                }
-              } else {
-                state.civiliansHit++;
-                state.score = Math.max(0, state.score - 150);
-                floatingText(civ.x, civ.y - 10, "Civilian Hit!", "#ff9eb3");
-                burst(civ.x + civ.w/2, civ.y + civ.h/3, "#ff6c8f", 10);
-                radio("Warning", "Careful, Kio. Civilians are still in the area.");
-              }
-
-              updateUI();
-              if (state.civiliansHit >= 3) {
-                finishLevel(false, "Too many civilians were hurt. Mission failed.");
-              }
-              break;
-            }
-          }
-        } else {
-          if (rectHit(bullet.x, bullet.y, player)) {
-            state.bullets.splice(state.bullets.indexOf(bullet), 1);
-            hitPlayer(bullet.damage || 10);
-            continue;
-          }
-        }
-      }
-
-      state.particles.forEach(p => {
-        p.x += p.vx * dt;
-        p.y += p.vy * dt;
-        p.vy += 220 * dt;
-        p.life -= dt;
-      });
-      state.particles = state.particles.filter(p => p.life > 0);
-
-      state.floatingTexts.forEach(t => {
-        t.y -= 28 * dt;
-        t.life -= dt;
-      });
-      state.floatingTexts = state.floatingTexts.filter(t => t.life > 0);
-
-      const civiliansObjectiveDone = level.id === 3 ? true : state.alliesUnlocked >= level.id;
-      const rescueReady = state.cluesCollected >= level.clueGoal &&
-        (!level.boss ? state.enemiesCleared >= level.enemyGoal : !state.boss) &&
-        civiliansObjectiveDone;
-
-      if (rescueReady) {
-        if (level.id === 1 && !state.rescueLog.includes("Eya")) {
-          state.rescueLog.push("Eya");
-          radio("Rescue Channel", "Eya is safe. Move to the next location.");
-        }
-        if (level.id === 2 && !state.rescueLog.includes("Kian")) {
-          state.rescueLog.push("Kian");
-          radio("Rescue Channel", "Kian is safe. The final mission is unlocked.");
-        }
-        if (level.id === 3) {
-          finishLevel(true, "Kio completed the final rescue operation. Eya and Kian are finally together with him as one happy family.");
-        } else {
-          finishLevel(true, level.clearText);
-        }
-      }
-
-      updateUI();
+    } else {
+      switchView('selectView');
     }
+  };
 
-    function spawnMuzzle(x, y) {
-      for (let i = 0; i < 8; i++) {
-        state.particles.push({
-          x, y,
-          vx: rand(40, 140),
-          vy: rand(-60, 60),
-          life: rand(0.12, 0.25),
-          size: rand(2,4),
-          color: "#ffd166"
-        });
-      }
+  document.getElementById('restartTopBtn').onclick = () => {
+    startMission();
+  };
+
+  el.arena.addEventListener('pointerdown', handleArenaAction);
+  el.arena.addEventListener('pointermove', ev => {
+    if (!state.game) return;
+    updatePointerFromEvent(ev);
+  });
+
+  el.arena.addEventListener('pointerup', () => {
+    if (!state.game) return;
+    if (getCurrentItem()?.mode === 'hook') {
+      cancelHookDrag();
     }
+  });
 
-    function drawBackground(level) {
-      const w = canvas.clientWidth || 320;
-      const h = canvas.clientHeight || 568;
+  el.arena.addEventListener('pointercancel', () => {
+    if (!state.game) return;
+    cancelHookDrag();
+  });
 
-      const grad = ctx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, level.bgTop);
-      grad.addColorStop(1, level.bgBottom);
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, w, h);
+  window.addEventListener('keydown', ev => {
+    if (!state.game || !state.game.canMove) return;
 
-      for (const b of state.buildings) {
-        ctx.fillStyle = `rgba(255,255,255,${b.shade})`;
-        ctx.fillRect(b.x, h - b.h - 88, b.w, b.h);
-        for (let y = h - b.h - 68; y < h - 100; y += 26) {
-          for (let x = b.x + 10; x < b.x + b.w - 10; x += 22) {
-            ctx.fillStyle = Math.random() > 0.92 ? "rgba(255,230,150,0.65)" : "rgba(255,255,255,0.06)";
-            ctx.fillRect(x, y, 10, 10);
-          }
-        }
-      }
+    const rect = getArenaRect();
+    const step = 28;
 
-      ctx.fillStyle = "rgba(0,0,0,0.18)";
-      ctx.fillRect(0, h - 95, w, 95);
-
-      ctx.strokeStyle = level.roadAccent;
-      ctx.globalAlpha = 0.4;
-      ctx.lineWidth = 3;
-      ctx.setLineDash([22, 18]);
-      ctx.beginPath();
-      ctx.moveTo(0, h - 48);
-      ctx.lineTo(w, h - 48);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.globalAlpha = 1;
+    if (ev.key === 'ArrowLeft' || ev.key.toLowerCase() === 'a') {
+      state.game.playerTargetX = clamp(state.game.playerTargetX - step, 44, rect.width - 44);
+    } else if (ev.key === 'ArrowRight' || ev.key.toLowerCase() === 'd') {
+      state.game.playerTargetX = clamp(state.game.playerTargetX + step, 44, rect.width - 44);
+    } else if (ev.key === 'ArrowUp' || ev.key.toLowerCase() === 'w') {
+      state.game.playerTargetY = clamp(state.game.playerTargetY - step, rect.height - 112, rect.height - 48);
+    } else if (ev.key === 'ArrowDown' || ev.key.toLowerCase() === 's') {
+      state.game.playerTargetY = clamp(state.game.playerTargetY + step, rect.height - 112, rect.height - 48);
     }
+  });
 
-    function roundRect(x, y, w, h, r, fill = true, stroke = false) {
-      ctx.beginPath();
-      ctx.moveTo(x + r, y);
-      ctx.arcTo(x + w, y, x + w, y + h, r);
-      ctx.arcTo(x + w, y + h, x, y + h, r);
-      ctx.arcTo(x, y + h, x, y, r);
-      ctx.arcTo(x, y, x + w, y, r);
-      if (fill) ctx.fill();
-      if (stroke) ctx.stroke();
-    }
-
-    function drawCharacterImageOrFallback(imgKey, x, y, w, h, label, colors) {
-      const img = images[imgKey];
-      if (img) {
-        ctx.drawImage(img, x, y, w, h);
-      } else {
-        ctx.fillStyle = colors.body;
-        roundRect(x + w * 0.2, y + h * 0.28, w * 0.6, h * 0.58, 14, true);
-        ctx.fillStyle = colors.head;
-        ctx.beginPath();
-        ctx.arc(x + w * 0.5, y + h * 0.18, w * 0.16, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = "rgba(255,255,255,0.92)";
-        ctx.font = `800 ${Math.max(11, w * 0.15)}px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif`;
-        ctx.textAlign = "center";
-        ctx.fillText(label, x + w / 2, y + h + 14);
-      }
-    }
-
-    function drawGunAndAim() {
-      const gun = getGunOrigin();
-      const dx = state.aimX - gun.x;
-      const dy = state.aimY - gun.y;
-      const angle = Math.atan2(dy, dx);
-      const len = Math.min(58, Math.hypot(dx, dy));
-
-      ctx.save();
-      ctx.translate(gun.x, gun.y);
-      ctx.rotate(angle);
-
-      ctx.fillStyle = "#2a2f36";
-      roundRect(0, -5, 28, 10, 4, true);
-      ctx.fillStyle = "#161b20";
-      roundRect(8, 6, 10, 14, 3, true);
-      ctx.fillStyle = "#79818a";
-      roundRect(20, -3, 10, 6, 2, true);
-      ctx.restore();
-
-      ctx.strokeStyle = "rgba(255,255,255,0.18)";
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ctx.moveTo(gun.x, gun.y);
-      ctx.lineTo(gun.x + Math.cos(angle) * len, gun.y + Math.sin(angle) * len);
-      ctx.stroke();
-
-      const cx = state.aimX;
-      const cy = state.aimY;
-      ctx.strokeStyle = "rgba(126,200,255,0.92)";
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(cx, cy, 11, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(cx - 18, cy); ctx.lineTo(cx - 6, cy);
-      ctx.moveTo(cx + 6, cy); ctx.lineTo(cx + 18, cy);
-      ctx.moveTo(cx, cy - 18); ctx.lineTo(cx, cy - 6);
-      ctx.moveTo(cx, cy + 6); ctx.lineTo(cx, cy + 18);
-      ctx.stroke();
-      ctx.fillStyle = "rgba(126,200,255,0.18)";
-      ctx.beginPath();
-      ctx.arc(cx, cy, 2.5, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    function drawPlayer() {
-      ctx.save();
-      if (player.invuln > 0 && Math.floor(player.invuln * 10) % 2 === 0) ctx.globalAlpha = 0.55;
-      drawCharacterImageOrFallback("kio", player.x, player.y, player.w, player.h, "KIO", { body: "#5ea6ff", head: "#ffd4bd" });
-      drawGunAndAim();
-      ctx.restore();
-    }
-
-    function drawEnemies() {
-      state.enemies.forEach(enemy => {
-        drawCharacterImageOrFallback(enemy.imageKey, enemy.x, enemy.y, enemy.w, enemy.h, "CRIM", { body: "#8a3b52", head: "#ffd4bd" });
-        ctx.fillStyle = "rgba(255,255,255,0.16)";
-        ctx.fillRect(enemy.x + 10, enemy.y - 8, enemy.w - 20, 6);
-        ctx.fillStyle = "#ff6c8f";
-        ctx.fillRect(enemy.x + 10, enemy.y - 8, (enemy.w - 20) * (enemy.hp / enemy.maxHp), 6);
-      });
-
-      if (state.boss) {
-        const b = state.boss;
-        drawCharacterImageOrFallback(b.imageKey, b.x, b.y, b.w, b.h, "BOSS", { body: "#7c2448", head: "#ffd4bd" });
-        ctx.fillStyle = "#ffd166";
-        ctx.font = "900 14px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText("BOSS", b.x + b.w / 2, b.y - 14);
-        ctx.fillStyle = "rgba(255,255,255,0.16)";
-        roundRect(b.x, b.y - 8, b.w, 10, 999, true);
-        ctx.fillStyle = "#ff6c8f";
-        roundRect(b.x, b.y - 8, b.w * (b.hp / b.maxHp), 10, 999, true);
-      }
-    }
-
-    function drawAllies() {
-      state.allies.forEach((ally, idx) => {
-        drawCharacterImageOrFallback(ally.imageKey, ally.x, ally.y, ally.w, ally.h, `ALLY ${idx+1}`, { body: "#7dffbc", head: "#ffd4bd" });
-      });
-    }
-
-    function drawCivilians() {
-      state.civilians.forEach(civ => {
-        const bob = Math.sin(civ.wiggle) * 3;
-        drawCharacterImageOrFallback(civ.imageKey, civ.x, civ.y + bob, civ.w, civ.h, "CIV", { body: "#f4f6ff", head: "#ffd4bd" });
-        if (civ.inDanger && !civ.rescued) {
-          ctx.fillStyle = "#ff6c8f";
-          ctx.font = "900 14px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";
-          ctx.textAlign = "center";
-          ctx.fillText("HELP!", civ.x + civ.w / 2, civ.y - 10);
-        }
-      });
-    }
-
-    function drawClues() {
-      state.clues.forEach(clue => {
-        if (clue.collected) return;
-        const pulse = 1 + Math.sin(clue.pulse) * 0.14;
-        ctx.save();
-        ctx.translate(clue.x, clue.y);
-        ctx.scale(pulse, pulse);
-        ctx.fillStyle = "rgba(255,183,215,0.18)";
-        ctx.beginPath();
-        ctx.arc(0, 0, 22, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = "#ffb7d7";
-        ctx.beginPath();
-        ctx.arc(0, 0, 11, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = "#08111c";
-        ctx.font = "900 12px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText("?", 0, 4);
-        ctx.restore();
-      });
-    }
-
-    function drawBullets() {
-      state.bullets.forEach(b => {
-        ctx.fillStyle = b.friendly ? "#ffd166" : "#ff6c8f";
-        ctx.beginPath();
-        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
-        ctx.fill();
-      });
-    }
-
-    function drawParticles() {
-      state.particles.forEach(p => {
-        ctx.globalAlpha = Math.max(0, p.life);
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-      });
-      ctx.globalAlpha = 1;
-    }
-
-    function drawFloatingTexts() {
-      state.floatingTexts.forEach(t => {
-        ctx.globalAlpha = Math.max(0, t.life);
-        ctx.fillStyle = t.color;
-        ctx.font = "800 14px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText(t.text, t.x, t.y);
-      });
-      ctx.globalAlpha = 1;
-    }
-
-    function drawRescueBanner() {
-      if (!state.rescueLog.length) return;
-      const w = canvas.clientWidth || 320;
-      const x = w - 160;
-      const y = 54;
-      ctx.fillStyle = "rgba(9,18,31,0.74)";
-      roundRect(x, y, 146, 66, 16, true);
-      ctx.fillStyle = "rgba(255,255,255,0.66)";
-      ctx.font = "700 10px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";
-      ctx.textAlign = "left";
-      ctx.fillText("RESCUED", x + 12, y + 16);
-      ctx.fillStyle = "#fff";
-      ctx.font = "900 14px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";
-      ctx.fillText(state.rescueLog.join(" • "), x + 12, y + 38);
-      ctx.fillStyle = "#ffb7d7";
-      ctx.font = "700 11px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";
-      ctx.fillText("Protected by Kio", x + 12, y + 56);
-    }
-
-    function render() {
-      const level = levels[state.levelIndex] || levels[0];
-      let ox = 0, oy = 0;
-      if (shakeTime > 0) {
-        ox = rand(-shakePower, shakePower);
-        oy = rand(-shakePower, shakePower);
-      }
-
-      ctx.save();
-      ctx.translate(ox, oy);
-      drawBackground(level);
-      drawClues();
-      drawCivilians();
-      drawAllies();
-      drawEnemies();
-      drawPlayer();
-      drawBullets();
-      drawParticles();
-      drawFloatingTexts();
-      drawRescueBanner();
-      ctx.restore();
-    }
-
-    function gameLoop(timestamp) {
-      if (!state.lastTime) state.lastTime = timestamp;
-      const dt = Math.min(0.032, (timestamp - state.lastTime) / 1000);
-      state.lastTime = timestamp;
-      update(dt);
-      render();
-      requestAnimationFrame(gameLoop);
-    }
-
-    function setMove(dir, on) {
-      if (dir === "left") state.keys.left = on;
-      if (dir === "right") state.keys.right = on;
-    }
-
-    function handleKey(e, down) {
-      if (e.code === "ArrowLeft" || e.code === "KeyA") setMove("left", down);
-      if (e.code === "ArrowRight" || e.code === "KeyD") setMove("right", down);
-      if (down && e.code === "Space") { e.preventDefault(); fireBullet(); }
-      if (down && e.code === "KeyR") reloadAmmo();
-      if (down && e.code === "KeyP") togglePause();
-    }
-
-    function togglePause() {
-      if (!state.running) return;
-      state.paused = !state.paused;
-      if (state.paused) {
-        ui.messageTitle.textContent = "Paused";
-        ui.messageText.textContent = "Mission paused. Press Continue to resume.";
-        ui.statScore.textContent = state.score;
-        ui.statAcc.textContent = (state.shotsFired ? Math.round((state.shotsHit / state.shotsFired) * 100) : 0) + "%";
-        ui.statClues.textContent = state.cluesCollected;
-        ui.statCivs.textContent = state.civiliansHit;
-        ui.nextBtn.textContent = "Continue";
-        state.messageMode = "resume";
-        ui.messageOverlay.classList.remove("hidden");
-      } else {
-        hideMessage();
-      }
-    }
-
-    window.addEventListener("keydown", e => handleKey(e, true));
-    window.addEventListener("keyup", e => handleKey(e, false));
-
-    function bindHold(btn, dir) {
-      const start = () => setMove(dir, true);
-      const end = () => setMove(dir, false);
-      ["pointerdown", "touchstart"].forEach(evt => btn.addEventListener(evt, start, { passive: true }));
-      ["pointerup", "pointercancel", "pointerleave", "touchend"].forEach(evt => btn.addEventListener(evt, end, { passive: true }));
-    }
-
-    bindHold(document.getElementById("leftBtn"), "left");
-    bindHold(document.getElementById("rightBtn"), "right");
-    document.getElementById("fireBtn").addEventListener("click", fireBullet);
-    document.getElementById("reloadBtn").addEventListener("click", reloadAmmo);
-    document.getElementById("pauseBtn").addEventListener("click", togglePause);
-    document.getElementById("backBtn").addEventListener("click", () => {
-      ui.screen.classList.add("fade-out");
-      setTimeout(() => { window.location.href = "5thpage.html"; }, 850);
+  window.addEventListener('resize', () => {
+    if (!state.game) return;
+    requestAnimationFrame(() => {
+      const rect = getArenaRect();
+      state.game.playerX = clamp(state.game.playerX, 44, rect.width - 44);
+      state.game.playerY = clamp(state.game.playerY, rect.height - 112, rect.height - 48);
+      state.game.playerTargetX = clamp(state.game.playerTargetX, 44, rect.width - 44);
+      state.game.playerTargetY = clamp(state.game.playerTargetY, rect.height - 112, rect.height - 48);
+      state.game.pointer.x = clamp(state.game.pointer.x, 22, rect.width - 22);
+      state.game.pointer.y = clamp(state.game.pointer.y, 22, rect.height - 22);
+      positionPlayer();
+      positionCrosshair();
+      renderWheel();
     });
+  });
 
-    function updateAimFromEvent(e) {
-      const rect = canvas.getBoundingClientRect();
-      const point = e.touches ? e.touches[0] : e;
-      state.aimX = clamp(point.clientX - rect.left, 12, rect.width - 12);
-      state.aimY = clamp(point.clientY - rect.top, 24, rect.height - 24);
-    }
+  setupWheelInteraction();
+  setupPlayerMovement();
+}
 
-    canvas.addEventListener("mousemove", updateAimFromEvent);
-    canvas.addEventListener("touchstart", updateAimFromEvent, { passive: true });
-    canvas.addEventListener("touchmove", updateAimFromEvent, { passive: true });
-    canvas.addEventListener("click", updateAimFromEvent);
+function init() {
+  renderMissionCards();
+  renderStore();
+  bindEvents();
+  updateQuantityUI();
+}
 
-    document.getElementById("startBtn").addEventListener("click", () => queueLevelIntro(0));
-    document.getElementById("howBtn").addEventListener("click", () => ui.howOverlay.classList.remove("hidden"));
-    document.getElementById("closeHowBtn").addEventListener("click", () => ui.howOverlay.classList.add("hidden"));
-    document.getElementById("introStartBtn").addEventListener("click", () => startLevel(state.pendingStartLevel));
-
-    document.getElementById("restartBtn").addEventListener("click", () => {
-      state.score = 0;
-      state.shotsFired = 0;
-      state.shotsHit = 0;
-      state.civiliansHit = 0;
-      state.rescueLog = [];
-      state.alliesUnlocked = 0;
-      queueLevelIntro(0);
-      hideMessage();
-    });
-
-    ui.nextBtn.addEventListener("click", () => {
-      if (state.messageMode === "resume") {
-        state.paused = false;
-        hideMessage();
-        return;
-      }
-      if (state.messageMode === "retry") {
-        queueLevelIntro(state.levelIndex);
-        hideMessage();
-        return;
-      }
-      if (state.levelIndex === levels.length - 1) {
-        state.score = 0;
-        state.shotsFired = 0;
-        state.shotsHit = 0;
-        state.civiliansHit = 0;
-        state.rescueLog = [];
-        state.alliesUnlocked = 0;
-        queueLevelIntro(0);
-        hideMessage();
-      } else {
-        queueLevelIntro(state.levelIndex + 1);
-        hideMessage();
-      }
-    });
-
-    Promise.all(
-      Object.entries(imageSources).map(([name, sources]) => loadImageCandidates(name, sources))
-    ).then(() => {
-      resize();
-      buildScenery();
-      updateUI();
-      requestAnimationFrame(gameLoop);
-    });
-  </script>
+init();
+</script>
 </body>
 </html>
